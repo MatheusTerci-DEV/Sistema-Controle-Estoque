@@ -1,0 +1,78 @@
+@model List<Produto>
+
+@{
+    ViewData["Title"] = "Produtos";
+}
+
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-cube text-primary me-2"></i>Produtos
+            </h1>
+            <p class="text-muted">Gerenciamento completo de produtos do estoque</p>
+        </div>
+        <a href="/ProdutosView/Create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus me-2"></i>Novo Produto
+        </a>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Lista de Produtos (@Model.Count)</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width: 60px;">ID</th>
+                            <th>Part Number</th>
+                            <th>Nome do Produto</th>
+                            <th>Categoria</th>
+                            <th class="text-center" style="width: 150px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var produto in Model)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">@produto.Id</span>
+                                </td>
+                                <td>
+                                    <strong>@produto.PartNumber</strong>
+                                </td>
+                                <td>@produto.NomeProduto</td>
+                                <td>
+                                    <span class="badge bg-info">@produto.Categoria</span>
+                                </td>
+                                <td class="text-center">
+                                    <a href="/ProdutosView/Edit/@produto.Id" class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="/ProdutosView/Delete/@produto.Id" class="btn btn-sm btn-danger" title="Deletar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+        <i class="fas fa-info-circle me-3 display-6"></i>
+        <div>
+            <h4 class="alert-heading">Nenhum produto cadastrado</h4>
+            <p class="mb-0">Não há produtos no sistema. <a href="/ProdutosView/Create" class="alert-link">Criar um novo produto</a></p>
+        </div>
+    </div>
+}

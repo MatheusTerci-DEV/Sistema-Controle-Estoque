@@ -1,0 +1,467 @@
+/* ============================================
+   PIMESTOQUE - WIS DESIGN STYLE
+   Web Information System - Dashboard Administrativo
+   ============================================ */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --sidebar-bg: #f8f9fa;
+    --sidebar-width: 250px;
+    --border-left-width: 4px;
+}
+
+/* ============================================
+   CORPO E LAYOUT GERAL
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fb;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   NAVBAR SUPERIOR
+   ============================================ */
+
+.navbar {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand i {
+    font-size: 1.8rem;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid #dee2e6;
+    padding: 0;
+    min-height: calc(100vh - 56px);
+    overflow-y: auto;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+    background-color: #fff;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.sidebar .nav-link {
+    color: #495057;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sidebar .nav-link.active {
+    background-color: #e7f1ff;
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sidebar i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+
+main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.container-fluid {
+    max-width: 1400px;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+
+.page-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    color: #212529;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.card-header {
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Cards com bordas coloridas à esquerda */
+.border-left-primary {
+    border-left: var(--border-left-width) solid var(--primary-color);
+}
+
+.border-left-success {
+    border-left: var(--border-left-width) solid var(--success-color);
+}
+
+.border-left-warning {
+    border-left: var(--border-left-width) solid var(--warning-color);
+}
+
+.border-left-danger {
+    border-left: var(--border-left-width) solid var(--danger-color);
+}
+
+.border-left-info {
+    border-left: var(--border-left-width) solid var(--info-color);
+}
+
+/* ============================================
+   DASHBOARD STATS CARDS
+   ============================================ */
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-body h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.card-body p {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   TABELAS
+   ============================================ */
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.table thead th {
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* ============================================
+   FORMULÁRIOS
+   ============================================ */
+
+.form-control,
+.form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+/* ============================================
+   BOTÕES
+   ============================================ */
+
+.btn {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: #157347;
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: #000;
+}
+
+.btn-warning:hover {
+    background-color: #ffb800;
+    color: #000;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+
+.alert {
+    border: none;
+    border-radius: 0.375rem;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    border-left-color: var(--info-color);
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.alert-success {
+    border-left-color: var(--success-color);
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.alert-warning {
+    border-left-color: var(--warning-color);
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.alert-danger {
+    border-left-color: var(--danger-color);
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+    padding: 1.5rem 0;
+}
+
+footer small {
+    color: #6c757d;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -var(--sidebar-width);
+        top: 56px;
+        height: calc(100vh - 56px);
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .container-fluid {
+        padding: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .btn-lg {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-6 {
+        font-size: 2rem;
+    }
+
+    .display-5 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .btn-lg {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* ============================================
+   UTILITÁRIOS
+   ============================================ */
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.flex-grow-1 {
+    flex-grow: 1;
+}
+
+/* ============================================
+   ANIMAÇÕES
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeIn 0.3s ease;
+}

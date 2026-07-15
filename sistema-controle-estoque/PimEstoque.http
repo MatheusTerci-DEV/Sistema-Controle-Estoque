@@ -1,0 +1,6 @@
+@PimEstoque_HostAddress = http://localhost:5215
+
+GET {{PimEstoque_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

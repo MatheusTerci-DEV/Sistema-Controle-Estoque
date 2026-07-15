@@ -1,0 +1,109 @@
+@model Produto
+
+@{
+    ViewData["Title"] = "Novo Produto";
+}
+
+<div class="page-header mb-4">
+    <h1 class="display-6 fw-bold">
+        <i class="fas fa-plus text-success me-2"></i>@ViewData["Title"]
+    </h1>
+    <p class="text-muted">Preencha os dados abaixo para cadastrar um novo produto</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0"><i class="fas fa-form me-2"></i>Formulário de Cadastro</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" asp-action="Create">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Erro na validação!</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <ul class="mb-0 mt-2">
+                                @foreach (var modelState in ViewData.ModelState.Values)
+                                {
+                                    foreach (var error in modelState.Errors)
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="PartNumber" class="form-label fw-bold">
+                            <i class="fas fa-barcode me-2 text-primary"></i>Part Number
+                        </label>
+                        <input type="text" class="form-control" id="PartNumber" name="PartNumber" 
+                               placeholder="Ex: PN-2024-001" required>
+                        <small class="text-muted">Código único do produto</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="NomeProduto" class="form-label fw-bold">
+                            <i class="fas fa-tag me-2 text-primary"></i>Nome do Produto
+                        </label>
+                        <input type="text" class="form-control" id="NomeProduto" name="NomeProduto" 
+                               placeholder="Ex: Processador Intel Core i7" required>
+                        <small class="text-muted">Nome descritivo do produto</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="Categoria" class="form-label fw-bold">
+                            <i class="fas fa-list me-2 text-primary"></i>Categoria
+                        </label>
+                        <select class="form-control" id="Categoria" name="Categoria" required>
+                            <option value="">-- Selecione uma categoria --</option>
+                            <option value="Eletrônicos">Eletrônicos</option>
+                            <option value="Periféricos">Periféricos</option>
+                            <option value="Software">Software</option>
+                            <option value="Acessórios">Acessórios</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                        <small class="text-muted">Categoria do produto</small>
+                    </div>
+
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-between">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save me-2"></i>Salvar Produto
+                        </button>
+                        <a href="/ProdutosView" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm bg-light">
+            <div class="card-header bg-info text-white py-3">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <strong class="d-block mb-1"><i class="fas fa-check text-success me-2"></i>Part Number</strong>
+                        <small class="text-muted">Use um código único e consistente para identificação rápida</small>
+                    </li>
+                    <li class="mb-3">
+                        <strong class="d-block mb-1"><i class="fas fa-check text-success me-2"></i>Nome do Produto</strong>
+                        <small class="text-muted">Seja descritivo para facilitar a busca e identificação</small>
+                    </li>
+                    <li>
+                        <strong class="d-block mb-1"><i class="fas fa-check text-success me-2"></i>Categoria</strong>
+                        <small class="text-muted">Organize melhor o estoque com categorias bem definidas</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
