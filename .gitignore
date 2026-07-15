@@ -1,0 +1,18 @@
+## .NET build output
+bin/
+obj/
+
+## Visual Studio / VS Code / JetBrains
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+## Local settings and logs
+appsettings.Local.json
+*.log
+
+## Operating system files
+.DS_Store
+Thumbs.db
