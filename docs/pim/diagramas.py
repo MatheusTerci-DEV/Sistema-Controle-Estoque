@@ -106,10 +106,10 @@ def organograma(destino: Path) -> Path:
         _caixa(ax, x, 16, 20, 8, nome, fundo=CINZA_FUNDO, tam_titulo=9)
         ax.text(x + 10, 13.5, desc, ha="center", va="top", fontsize=7.5)
     # destaque das áreas usuárias do PIM Estoque
-    ax.add_patch(FancyBboxPatch((22.5, 3.5), 45, 22.5, boxstyle="round,pad=0.2,rounding_size=1",
+    ax.add_patch(FancyBboxPatch((22.5, 6.0), 45, 20.0, boxstyle="round,pad=0.2,rounding_size=1",
                                 fill=False, linestyle=(0, (4, 3)), lw=1, edgecolor=CINZA_ESCURO))
-    ax.text(45, 2.0, "Áreas usuárias diretas do PIM Estoque (linha tracejada)", ha="center",
-            fontsize=7.5, style="italic")
+    ax.text(45, 2.8, "Áreas usuárias diretas do PIM Estoque (linha tracejada)", ha="center",
+            va="center", fontsize=7.5, style="italic")
     return _salvar(fig, destino)
 
 

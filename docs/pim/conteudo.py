@@ -747,6 +747,23 @@ def etapa8(ctx: dict) -> list:
               "gerenciada, firewall do banco restrito ao App Service, criptografia em repouso e em "
               "trânsito, backups testados, acesso por funções com autenticação multifator e "
               "varredura de dependências, atendendo à LGPD (Brasil, 2018)."),
+        ("h2", "9.8 Implantação realizada"),
+        ("p", "Para validar o plano antes da contratação do Azure, a solução foi publicada em uma "
+              "instância de computação da Oracle Cloud Infrastructure, na região de São Paulo, e está "
+              "disponível em https://estoque.vinnisantos.com.br. A instância usa processadores ARM, "
+              "para os quais a imagem do SQL Server 2022 não é distribuída; por isso, o banco roda no "
+              "Azure SQL Edge, versão do motor do SQL Server compilada para ARM64, que executa os "
+              "mesmos scripts T-SQL do Apêndice A. A bateria de validação do banco, com procedures, "
+              "triggers, auditoria e restrições, passou integralmente nesse ambiente."),
+        ("p", "A API e o banco rodam em containers descritos no arquivo docker-compose.prod.yml. O "
+              "banco não expõe porta à internet e é acessado pela API com um usuário próprio, "
+              "restrito a leitura, escrita e execução de procedures, sem uso da conta administrativa. "
+              "Um servidor Nginx recebe as requisições, aplica HTTPS com certificado Let's Encrypt "
+              "renovado automaticamente e as encaminha à API; senhas e chave JWT ficam em um arquivo "
+              "de ambiente fora do repositório. O aplicativo Android aponta para esse endereço por "
+              "padrão. Como a Microsoft encerrou o suporte ao SQL Edge em 2025, essa implantação "
+              "serve à demonstração do projeto; para a operação definitiva, a recomendação continua "
+              "sendo o Azure SQL Database descrito na seção 9.1."),
     ]
 
 
