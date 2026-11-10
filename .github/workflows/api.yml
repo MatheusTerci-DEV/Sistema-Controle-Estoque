@@ -1,0 +1,18 @@
+name: PIM Estoque API
+on:
+  push:
+    branches: [main]
+    paths: ['Program.cs', 'PimEstoque.csproj', 'Controllers/**', 'Models/**', 'Contracts/**', 'Data/**', 'Tests/**', 'database/**', '.github/workflows/api.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet test Tests/PimEstoque.Tests.csproj --configuration Release
