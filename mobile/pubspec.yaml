@@ -1,0 +1,21 @@
+name: pim_estoque
+description: "Aplicativo mobile acadêmico para o PIM Estoque."
+publish_to: 'none'
+version: 0.2.0+2
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.1.6
+  web: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

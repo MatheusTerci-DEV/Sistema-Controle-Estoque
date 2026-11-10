@@ -1,3 +1,29 @@
+# PIM Estoque — mobile em Flutter
+
+Atualização iniciada em **10 de novembro de 2026**. O projeto está evoluindo para um aplicativo mobile em **Flutter/Dart** (Android e web), com entregas pequenas e commits separados.
+
+## Aplicativo mobile
+
+O aplicativo fica em [`mobile/`](mobile/README.md): início, oito materiais de demonstração, pesquisa, detalhes, cadastro e edição com persistência local. Os dados são salvos no aparelho ou no navegador, conforme a plataforma. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
+
+Veja o [roteiro de apresentação e testes](docs/APRESENTACAO_TESTES_MOBILE.md). A automação na aba Actions testa o app e publica a prévia web no GitHub Pages. A geração de APK fica disponível para execução manual.
+
+```bash
+cd mobile
+flutter pub get
+flutter run
+```
+
+Veja o [plano de novembro](docs/PLANO_MOBILE_2026-11.md) para a sequência de implementação e o diagnóstico do backend.
+
+## Situação da API
+
+Os arquivos .NET na raiz estão incompletos: faltam Controllers, Data, Models e Services referenciados pelo projeto. O código anterior pode ser recuperado do commit `3c5da55`, dentro de `sistema-controle-estoque/`. A API precisa ser recuperada e validada antes da integração mobile.
+
+A documentação web abaixo descreve a versão histórica. Os comandos dessa versão dependem da recuperação dos arquivos ausentes.
+
+---
+
 # Sistema de Controle de Estoque
 
 Aplicação web acadêmica para cadastrar, consultar, editar e excluir produtos de um estoque. O projeto reúne uma API REST em ASP.NET Core, persistência com Entity Framework Core e SQL Server e uma interface web construída com ASP.NET Core MVC e Razor.

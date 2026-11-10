@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PIM Estoque: demonstração de cadastro e consulta de materiais em Flutter.">
+  <meta name="theme-color" content="#176B5B">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PIM Estoque">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <title>PIM Estoque</title>
+  <style>
+    html,body { margin:0; min-height:100%; background:#f5f7f8; }
+    #loading { position:fixed; inset:0; display:grid; place-content:center; padding:24px;
+      text-align:center; font-family:system-ui,sans-serif; color:#176B5B; }
+  </style>
+</head>
+<body>
+  <div id="loading" role="status"><h1>PIM Estoque</h1><p>Abrindo seu catálogo…</p></div>
+  <noscript>Ative o JavaScript para abrir o PIM Estoque.</noscript>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      document.getElementById('loading')?.remove();
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
