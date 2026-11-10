@@ -48,3 +48,5 @@ Oito materiais fictícios, cadastro, edição e persistência em arquivo JSON lo
 ## Terceira etapa — prévia web
 
 Suporte Flutter Web, persistência no navegador por localStorage e publicação no GitHub Pages pelo workflow PIM Estoque Web. A geração de APK passa a ser manual. Os cadastros são independentes por navegador/aparelho; não há API nem sincronização.
+
+Pages configurado para publicar pela main, mantendo a proteção do ambiente. A versão mobile/web foi integrada à main preservando os commits incrementais.

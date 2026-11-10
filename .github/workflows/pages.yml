@@ -2,7 +2,7 @@ name: PIM Estoque Web
 
 on:
   push:
-    branches: [main, feat/flutter-mobile-novembro-2026]
+    branches: [main]
     paths: ['mobile/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 

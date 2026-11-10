@@ -52,7 +52,7 @@ Consulte `../docs/APRESENTACAO_TESTES_MOBILE.md` para o roteiro de demonstraçã
 
 ## Prévia web no GitHub Pages
 
-O workflow `.github/workflows/pages.yml` publica a branch de desenvolvimento e a main no GitHub Pages após análise, testes e build. O repositório precisa estar com Pages habilitado e origem **GitHub Actions**. A publicação usa o subcaminho `/Sistema-Controle-Estoque/`.
+O workflow `.github/workflows/pages.yml` publica a main no GitHub Pages após análise, testes e build. O repositório está configurado com Pages e origem **GitHub Actions**. As alterações são publicadas após integração à main, mantendo a regra do ambiente github-pages. A publicação usa o subcaminho `/Sistema-Controle-Estoque/`.
 
 ```bash
 flutter build web --release --base-href /Sistema-Controle-Estoque/ --no-web-resources-cdn
