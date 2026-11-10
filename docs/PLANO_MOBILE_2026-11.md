@@ -15,8 +15,8 @@ O modelo histórico de produto tem Id, PartNumber, NomeProduto e Categoria; não
 ## Entregas
 
 - [x] Diagnóstico e plano de migração.
-- [ ] Base Flutter: projeto Android, tema e navegação.
-- [ ] Consulta inicial de produtos, pesquisa e detalhes usando demonstração explícita.
+- [x] Base Flutter: projeto Android, tema e navegação.
+- [x] Consulta inicial de produtos, pesquisa e detalhes usando demonstração explícita.
 - [ ] Recuperar e validar a API .NET a partir do histórico.
 - [ ] Integrar consulta de produtos com tratamento de carregamento, falha e lista vazia.
 - [ ] Cadastro e edição de produtos com validações.
@@ -32,3 +32,11 @@ O app deve abrir, permitir navegar entre início e produtos, pesquisar por nome,
 ## Verificação
 
 Executar flutter analyze e flutter test. O build e a instalação Android dependem do Android SDK. Registrar quais verificações foram executadas, sem tratar análise estática como validação em aparelho.
+
+## Resultado da primeira etapa — 10/11/2026
+
+- Flutter 3.47.9 / Dart 3.13.7.
+- flutter analyze --no-pub: sem problemas.
+- flutter test --no-pub: 3 testes aprovados (pesquisa, fluxo de consulta/detalhes e navegação com tela pequena e texto ampliado).
+- Android SDK ausente neste ambiente: APK e instalação em aparelho ainda não validados.
+- API e SQL Server não foram executados nem alterados.
