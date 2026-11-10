@@ -4,7 +4,9 @@ Atualização iniciada em **10 de novembro de 2026**. O projeto está evoluindo 
 
 ## Aplicativo mobile
 
-A primeira etapa fica em [`mobile/`](mobile/README.md): início, catálogo fictício de produtos, pesquisa e detalhes. Os dados de demonstração são identificados na interface. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
+O aplicativo fica em [`mobile/`](mobile/README.md): início, oito materiais de demonstração, pesquisa, detalhes, cadastro e edição com persistência local. Os dados são salvos no aparelho. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
+
+Veja o [roteiro de apresentação e testes](docs/APRESENTACAO_TESTES_MOBILE.md). A automação na aba Actions testa o app e tenta gerar um APK de debug para demonstração.
 
 ```bash
 cd mobile

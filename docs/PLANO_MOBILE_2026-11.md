@@ -19,7 +19,7 @@ O modelo histórico de produto tem Id, PartNumber, NomeProduto e Categoria; não
 - [x] Consulta inicial de produtos, pesquisa e detalhes usando demonstração explícita.
 - [ ] Recuperar e validar a API .NET a partir do histórico.
 - [ ] Integrar consulta de produtos com tratamento de carregamento, falha e lista vazia.
-- [ ] Cadastro e edição de produtos com validações.
+- [x] Cadastro e edição de produtos com validações e persistência local (integração com a API pendente).
 - [ ] Modelar saldo, endereços e movimentações; definir regras e persistência.
 - [ ] Recebimento, armazenagem, transferências e consultas.
 - [ ] Autenticação, testes de integração e validação no aparelho.
@@ -40,3 +40,7 @@ Executar flutter analyze e flutter test. O build e a instalação Android depend
 - flutter test --no-pub: 3 testes aprovados (pesquisa, fluxo de consulta/detalhes e navegação com tela pequena e texto ampliado).
 - Android SDK ausente neste ambiente: APK e instalação em aparelho ainda não validados.
 - API e SQL Server não foram executados nem alterados.
+
+## Segunda etapa — materiais para apresentação
+
+Oito materiais fictícios, cadastro, edição e persistência em arquivo JSON local, com validação de campos obrigatórios e part number único. Catálogo e totais refletem os dados salvos. Testes cobrem falhas, recuperação, reabertura de arquivo e navegação. A automação do GitHub executa análise, testes e build do APK de debug. Consulte APRESENTACAO_TESTES_MOBILE.md para o roteiro.
