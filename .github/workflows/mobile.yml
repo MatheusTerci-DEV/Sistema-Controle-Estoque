@@ -41,8 +41,11 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze --no-pub
       - run: flutter test --no-pub
-      - run: flutter build apk --debug --no-pub
+      - name: Gerar APK de demonstração
+        if: github.event_name == 'workflow_dispatch'
+        run: flutter build apk --debug --no-pub
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
         with:
           name: pim-estoque-demo-android
           path: mobile/build/app/outputs/flutter-apk/app-debug.apk
