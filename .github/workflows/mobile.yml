@@ -1,6 +1,12 @@
 name: PIM Estoque Mobile
 
 on:
+  push:
+    branches: [main, 'feat/**', 'fix/**']
+    paths: ['mobile/**', '.github/workflows/mobile.yml']
+  pull_request:
+    branches: [main]
+    paths: ['mobile/**', '.github/workflows/mobile.yml']
   workflow_dispatch:
 
 permissions:
