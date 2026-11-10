@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.url,
                   decoration: const InputDecoration(
                     labelText: 'Servidor da API',
-                    helperText: 'Ex.: http://192.168.0.10:8080',
+                    helperText: 'Produção: https://estoque.vinnisantos.com.br',
                   ),
                   validator: (v) =>
                       Uri.tryParse(v?.trim() ?? '')?.hasAuthority == true &&

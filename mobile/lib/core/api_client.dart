@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'auth.dart';
@@ -10,7 +9,7 @@ import '../features/products/stock_movement.dart';
 
 String defaultApiUrl() => const String.fromEnvironment(
   'API_URL',
-  defaultValue: kIsWeb ? 'http://127.0.0.1:5080' : 'http://10.0.2.2:5080',
+  defaultValue: 'https://estoque.vinnisantos.com.br',
 );
 
 class ApiException implements Exception {
