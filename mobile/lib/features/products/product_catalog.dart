@@ -5,12 +5,18 @@ import 'package:flutter/foundation.dart';
 import 'demo_products.dart';
 import 'product.dart';
 import 'product_storage.dart';
+import 'stock_movement.dart';
 
 class ProductCatalog extends ChangeNotifier {
   ProductCatalog(this.storage);
 
   final ProductStorage storage;
   List<Product> _products = [];
+  List<StockMovement> _movements = [];
+  List<StockMovement> get movements => List.unmodifiable(_movements.reversed);
+  int balance(int productId) => _movements
+      .where((m) => m.productId == productId)
+      .fold(0, (sum, m) => sum + m.quantity);
   List<Product> get products => List.unmodifiable(_products);
   bool isLoading = false;
   bool isSaving = false;
@@ -37,6 +43,7 @@ class ProductCatalog extends ChangeNotifier {
     try {
       final raw = await storage.read();
       final List<Product> loaded;
+      List<StockMovement> loadedMovements = [];
       if (raw == null) {
         loaded = List.of(demoProducts);
         await storage.write(_encode(loaded));
@@ -58,7 +65,26 @@ class ProductCatalog extends ChangeNotifier {
                 loaded.length) {
           throw const FormatException('Materiais duplicados no arquivo.');
         }
+        final rows = data['movements'] ?? [];
+        if (rows is! List) throw const FormatException('Histórico inválido.');
+        final running = <int, int>{};
+        loadedMovements = rows.map((row) {
+          if (row is! Map<String, dynamic>) {
+            throw const FormatException('Histórico inválido.');
+          }
+          final movement = StockMovement.fromJson(row);
+          if (!loaded.any((p) => p.id == movement.productId)) {
+            throw const FormatException('Produto ausente.');
+          }
+          final saldo = (running[movement.productId] ?? 0) + movement.quantity;
+          if (saldo < 0) {
+            throw const FormatException('Saldo inválido no histórico.');
+          }
+          running[movement.productId] = saldo;
+          return movement;
+        }).toList();
       }
+      _movements = loadedMovements;
       _products = loaded;
       isReady = true;
     } catch (_) {
@@ -127,8 +153,53 @@ class ProductCatalog extends ChangeNotifier {
     }
   }
 
-  String _encode(List<Product> products) => jsonEncode({
-    'version': 1,
-    'products': products.map((p) => p.toJson()).toList(),
-  });
+  Future<void> moveStock({
+    required int productId,
+    required int quantity,
+    required bool incoming,
+    required String reason,
+  }) async {
+    if (!isReady || isLoading || isSaving) {
+      throw StateError('Catálogo indisponível.');
+    }
+    if (!_products.any((p) => p.id == productId)) {
+      throw const FormatException('Selecione um material válido.');
+    }
+    if (quantity <= 0 || quantity > 999999999) {
+      throw const FormatException(
+        'Informe uma quantidade inteira entre 1 e 999999999.',
+      );
+    }
+    if (reason.trim().isEmpty || reason.trim().length > 150) {
+      throw const FormatException('Informe o motivo com até 150 caracteres.');
+    }
+    if (!incoming && quantity > balance(productId)) {
+      throw const FormatException('Saldo insuficiente para esta saída.');
+    }
+    final updated = [
+      ..._movements,
+      StockMovement(
+        productId: productId,
+        quantity: incoming ? quantity : -quantity,
+        reason: reason.trim(),
+        createdAt: DateTime.now().toUtc(),
+      ),
+    ];
+    isSaving = true;
+    _notify();
+    try {
+      await storage.write(_encode(_products, movements: updated));
+      _movements = updated;
+    } finally {
+      isSaving = false;
+      _notify();
+    }
+  }
+
+  String _encode(List<Product> products, {List<StockMovement>? movements}) =>
+      jsonEncode({
+        'version': 1,
+        'movements': (movements ?? _movements).map((m) => m.toJson()).toList(),
+        'products': products.map((p) => p.toJson()).toList(),
+      });
 }

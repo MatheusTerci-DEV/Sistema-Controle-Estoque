@@ -5,6 +5,7 @@ import 'features/home/home_page.dart';
 import 'features/products/products_page.dart';
 import 'features/products/product_catalog.dart';
 import 'features/products/product_storage.dart';
+import 'features/products/stock_page.dart';
 
 class PimEstoqueApp extends StatelessWidget {
   const PimEstoqueApp({super.key, this.catalog});
@@ -76,6 +77,7 @@ class _AppShellState extends State<AppShell> {
           onOpenProducts: () => setState(() => _index = 1),
         ),
         ProductsPage(catalog: _catalog),
+        StockPage(catalog: _catalog),
       ],
     );
   }
@@ -122,6 +124,7 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(Icons.inventory_2),
             label: 'Produtos',
           ),
+          NavigationDestination(icon: Icon(Icons.swap_vert), label: 'Estoque'),
         ],
       ),
     ),
