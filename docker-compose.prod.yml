@@ -1,0 +1,36 @@
+# Produção na instância Oracle (ARM64) atrás do Nginx: https://estoque.vinnisantos.com.br
+# Banco: Azure SQL Edge (motor do SQL Server para ARM; mesmo T-SQL dos scripts em database/).
+# Segredos em .env no servidor (fora do Git): MSSQL_SA_PASSWORD, DB_APP_PASSWORD, JWT_KEY, ADMIN_EMAIL, ADMIN_SENHA.
+# Uso: docker compose -f docker-compose.prod.yml up -d --build
+# Os scripts database/0*.sql são aplicados uma vez (ver docs/DEPLOY_ORACLE.md); o banco não expõe porta.
+
+services:
+  sqledge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "1"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?defina no .env}
+      MSSQL_MEMORY_LIMIT_MB: "1024"
+    volumes:
+      - sqledge-data:/var/opt/mssql
+    mem_limit: 1536m
+    restart: unless-stopped
+
+  api:
+    build: .
+    depends_on: [sqledge]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=sqledge,1433;Database=PimEstoque;User Id=pim_api;Password=${DB_APP_PASSWORD:?defina no .env};TrustServerCertificate=True;"
+      Jwt__Key: ${JWT_KEY:?defina no .env}
+      Seed__AdminEmail: ${ADMIN_EMAIL:?defina no .env}
+      Seed__AdminSenha: ${ADMIN_SENHA:?defina no .env}
+      # Prévia web (Flutter) publicada no GitHub Pages chama esta API.
+      Cors__Origins__0: https://matheusterci-dev.github.io
+    ports:
+      - "127.0.0.1:8090:8080"
+    mem_limit: 512m
+    restart: unless-stopped
+
+volumes:
+  sqledge-data:
