@@ -53,6 +53,47 @@ class _StockPageState extends State<StockPage> {
     }
   }
 
+  Widget _summary() {
+    final product = widget.catalog.products.firstWhere(
+      (p) => p.id == _productId,
+    );
+    final quantity = int.tryParse(_quantity.text.trim());
+    final current = widget.catalog.balance(product.id);
+    final valid = quantity != null && quantity > 0 && quantity <= 999999999;
+    final next = valid ? current + (_incoming ? quantity : -quantity) : null;
+    final insufficient = next != null && next < 0;
+    return Card.filled(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Resumo da movimentação',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text('${product.partNumber} • ${product.name}'),
+            Text('Operação: ${_incoming ? "Entrada" : "Saída"}'),
+            Text('Saldo atual: $current ${product.unit}'),
+            Text(
+              'Quantidade: ${valid ? "$quantity ${product.unit}" : "Informe uma quantidade válida"}',
+            ),
+            Text(
+              'Saldo previsto: ${next == null ? "—" : "$next ${product.unit}"}',
+            ),
+            if (insufficient)
+              Text(
+                'Saldo insuficiente. Esta saída será recusada.',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            const Text('O saldo só muda após registrar a movimentação.'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final catalog = widget.catalog;
@@ -130,6 +171,7 @@ class _StockPageState extends State<StockPage> {
                 controller: _quantity,
                 enabled: !catalog.isSaving,
                 keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() => _message = null),
                 decoration: const InputDecoration(labelText: 'Quantidade'),
                 validator: (value) {
                   final quantity = int.tryParse(value?.trim() ?? '');
@@ -152,6 +194,8 @@ class _StockPageState extends State<StockPage> {
                     ? 'Informe o motivo.'
                     : null,
               ),
+              const SizedBox(height: 12),
+              if (_productId != null) _summary(),
               const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: catalog.isSaving ? null : _save,

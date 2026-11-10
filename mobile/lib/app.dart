@@ -76,6 +76,7 @@ class _AppShellState extends State<AppShell> {
           products: _catalog.products,
           catalog: _catalog,
           onOpenProducts: () => setState(() => _index = 1),
+          onOpenStock: () => setState(() => _index = 2),
         ),
         ProductsPage(catalog: _catalog),
         StockPage(catalog: _catalog),
@@ -96,38 +97,78 @@ class _AppShellState extends State<AppShell> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              child: const Text(
-                'Demonstração • catálogo local, sem conexão com a API.',
+      body: Row(
+        children: [
+          if (MediaQuery.sizeOf(context).width >= 900) ...[
+            NavigationRail(
+              extended: true,
+              selectedIndex: _index,
+              onDestinationSelected: (value) => setState(() => _index = value),
+              leading: const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('ALMOXARIFADO'),
+              ),
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.space_dashboard_outlined),
+                  label: Text('Início'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.inventory_2_outlined),
+                  label: Text('Produtos'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.swap_vert),
+                  label: Text('Estoque'),
+                ),
+              ],
+            ),
+            const VerticalDivider(width: 1),
+          ],
+          Expanded(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    child: const Text(
+                      'Demonstração • catálogo local, sem conexão com a API.',
+                    ),
+                  ),
+                  Expanded(child: _content()),
+                ],
               ),
             ),
-            Expanded(child: _content()),
-          ],
-        ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (value) => setState(() => _index = value),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.space_dashboard_outlined),
-            selectedIcon: Icon(Icons.space_dashboard),
-            label: 'Início',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: 'Produtos',
-          ),
-          NavigationDestination(icon: Icon(Icons.swap_vert), label: 'Estoque'),
         ],
       ),
+      bottomNavigationBar: MediaQuery.sizeOf(context).width >= 900
+          ? null
+          : NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: (value) => setState(() => _index = value),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.space_dashboard_outlined),
+                  selectedIcon: Icon(Icons.space_dashboard),
+                  label: 'Início',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.inventory_2_outlined),
+                  selectedIcon: Icon(Icons.inventory_2),
+                  label: 'Produtos',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.swap_vert),
+                  label: 'Estoque',
+                ),
+              ],
+            ),
     ),
   );
 }
