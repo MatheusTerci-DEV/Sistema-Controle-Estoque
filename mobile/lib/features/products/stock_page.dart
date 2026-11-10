@@ -110,6 +110,23 @@ class _StockPageState extends State<StockPage> {
           'Demonstração local • quantidades em unidades inteiras. Materiais começam com saldo zero; registre uma entrada para adicionar estoque.',
         ),
         const SizedBox(height: 20),
+        if (catalog.api != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: catalog.pendingCount == 0 ? null : catalog.sync,
+                  icon: const Icon(Icons.sync),
+                  label: const Text('Sincronizar'),
+                ),
+                Text('${catalog.pendingCount} pendente(s)'),
+              ],
+            ),
+          ),
+        if (catalog.api != null) const SizedBox(height: 12),
         Form(
           key: _form,
           child: Column(
@@ -198,7 +215,7 @@ class _StockPageState extends State<StockPage> {
               if (_productId != null) _summary(),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: catalog.isSaving ? null : _save,
+                onPressed: !catalog.canWrite || catalog.isSaving ? null : _save,
                 icon: const Icon(Icons.swap_vert),
                 label: Text(
                   catalog.isSaving ? 'Salvando…' : 'Registrar movimentação',

@@ -25,8 +25,8 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     final id = json['id'];
     final partNumber = json['partNumber'];
-    final name = json['nomeProduto'];
-    final category = json['categoria'];
+    final name = json['nomeProduto'] ?? json['name'];
+    final category = json['categoria'] ?? json['category'];
     final unit = json['unit'] ?? 'UN';
     final minimum = json['minimumStock'] ?? 0;
     final location = json['location'] ?? '';
@@ -71,6 +71,15 @@ class Product {
     'unit': unit,
     'minimumStock': minimumStock,
     'location': location,
+  };
+
+  Map<String, Object> toApiJson() => {
+    'partNumber': partNumber,
+    'nomeProduto': name,
+    'categoria': category,
+    'unit': unit,
+    'location': location,
+    'minimumStock': minimumStock,
   };
 
   bool matches(String query) {

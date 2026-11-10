@@ -77,10 +77,19 @@ class _ProductsPageState extends State<ProductsPage> {
               const SizedBox(height: 20),
               const Text('Cadastro de almoxarifado. Dados salvos localmente.'),
               const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () => Navigator.pop(context, true),
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text('Editar material'),
+              if (widget.catalog.canWrite)
+                FilledButton.icon(
+                  onPressed: () => Navigator.pop(context, true),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('Editar material'),
+                ),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showHistory(product);
+                },
+                icon: const Icon(Icons.history),
+                label: const Text('Ver histórico'),
               ),
               const SizedBox(height: 8),
               TextButton(
@@ -93,6 +102,49 @@ class _ProductsPageState extends State<ProductsPage> {
       ),
     );
     if (edit == true && mounted) await _openForm(product);
+  }
+
+  Future<void> _showHistory(Product product) async {
+    try {
+      final history = await widget.catalog.history(product.id);
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Histórico: ${product.name}'),
+          content: history.isEmpty
+              ? const Text('Nenhuma movimentação registrada.')
+              : SizedBox(
+                  width: 360,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      for (final movement in history)
+                        ListTile(
+                          title: Text(
+                            '${movement.quantity > 0 ? 'Entrada' : 'Saída'}: ${movement.quantity.abs()} ${product.unit}',
+                          ),
+                          subtitle: Text(movement.reason),
+                        ),
+                    ],
+                  ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Não foi possível carregar o histórico.'),
+          ),
+        );
+    }
   }
 
   @override
@@ -113,11 +165,14 @@ class _ProductsPageState extends State<ProductsPage> {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: widget.catalog.isSaving ? null : () => _openForm(),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Cadastrar material'),
-                ),
+                if (widget.catalog.canWrite)
+                  FilledButton.icon(
+                    onPressed: widget.catalog.isSaving
+                        ? null
+                        : () => _openForm(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Cadastrar material'),
+                  ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _search,
