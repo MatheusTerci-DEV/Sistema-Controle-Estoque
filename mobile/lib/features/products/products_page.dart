@@ -23,6 +23,7 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   Future<void> _openForm([Product? product]) async {
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -59,10 +60,18 @@ class _ProductsPageState extends State<ProductsPage> {
               Text('Part number: ${product.partNumber}'),
               const SizedBox(height: 8),
               Text('Categoria: ${product.category}'),
-              const SizedBox(height: 20),
-              const Text(
-                'Catálogo local. Saldo e localização ainda não estão disponíveis.',
+              const SizedBox(height: 12),
+              Text(
+                'Saldo: ${widget.catalog.balance(product.id)} ${product.unit}',
               ),
+              Text('Estoque mínimo: ${product.minimumStock} ${product.unit}'),
+              Text(
+                'Localização: ${product.location.isEmpty ? "Não informada" : product.location}',
+              ),
+              if (widget.catalog.needsReplenishment(product))
+                const Text('Reposição necessária'),
+              const SizedBox(height: 20),
+              const Text('Cadastro de almoxarifado. Dados salvos localmente.'),
               const SizedBox(height: 20),
               FilledButton.icon(
                 onPressed: () => Navigator.pop(context, true),

@@ -16,6 +16,7 @@ class _StockPageState extends State<StockPage> {
   int? _productId;
   bool _incoming = true;
   String? _message;
+  bool _onlyReplenishment = false;
 
   @override
   void dispose() {
@@ -101,7 +102,7 @@ class _StockPageState extends State<StockPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'Saldo disponível: ${catalog.balance(_productId!)} un.',
+                    'Saldo disponível: ${catalog.balance(_productId!)} ${products.firstWhere((p) => p.id == _productId).unit}',
                   ),
                 ),
               const SizedBox(height: 12),
@@ -172,12 +173,24 @@ class _StockPageState extends State<StockPage> {
           'Saldos por material',
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        for (final product in products)
+        FilterChip(
+          label: const Text('Somente reposição'),
+          selected: _onlyReplenishment,
+          onSelected: (value) => setState(() => _onlyReplenishment = value),
+        ),
+        if (_onlyReplenishment && catalog.replenishment.isEmpty)
+          const Text(
+            'Nenhum material precisa de reposição com os mínimos configurados.',
+          ),
+        for (final product
+            in (_onlyReplenishment ? catalog.replenishment : products))
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(product.name),
-            subtitle: Text(product.partNumber),
-            trailing: Text('${catalog.balance(product.id)} un.'),
+            subtitle: Text(
+              '${product.partNumber} • ${product.location.isEmpty ? "Sem localização" : product.location}${catalog.needsReplenishment(product) ? " • Repor" : ""}',
+            ),
+            trailing: Text('${catalog.balance(product.id)} ${product.unit}'),
           ),
         const SizedBox(height: 24),
         Text(
@@ -196,7 +209,7 @@ class _StockPageState extends State<StockPage> {
               movement.quantity > 0 ? Icons.south_west : Icons.north_east,
             ),
             title: Text(
-              '${products.firstWhere((p) => p.id == movement.productId).partNumber} • ${movement.quantity > 0 ? '+' : ''}${movement.quantity} un.',
+              '${products.firstWhere((p) => p.id == movement.productId).partNumber} • ${movement.quantity > 0 ? '+' : ''}${movement.quantity} ${products.firstWhere((p) => p.id == movement.productId).unit}',
             ),
             subtitle: Text(
               '${movement.reason}\n${movement.createdAt.toLocal().toString().substring(0, 16)}',

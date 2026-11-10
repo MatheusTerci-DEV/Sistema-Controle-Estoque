@@ -74,6 +74,7 @@ class _AppShellState extends State<AppShell> {
       children: [
         HomePage(
           products: _catalog.products,
+          catalog: _catalog,
           onOpenProducts: () => setState(() => _index = 1),
         ),
         ProductsPage(catalog: _catalog),

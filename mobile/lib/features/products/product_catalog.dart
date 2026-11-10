@@ -17,6 +17,10 @@ class ProductCatalog extends ChangeNotifier {
   int balance(int productId) => _movements
       .where((m) => m.productId == productId)
       .fold(0, (sum, m) => sum + m.quantity);
+  bool needsReplenishment(Product product) =>
+      product.minimumStock > 0 && balance(product.id) <= product.minimumStock;
+  List<Product> get replenishment =>
+      _products.where(needsReplenishment).toList();
   List<Product> get products => List.unmodifiable(_products);
   bool isLoading = false;
   bool isSaving = false;
@@ -116,6 +120,9 @@ class ProductCatalog extends ChangeNotifier {
     required String partNumber,
     required String name,
     required String category,
+    String? unit,
+    int? minimumStock,
+    String? location,
   }) async {
     if (!isReady || isLoading || isSaving) {
       throw StateError('Catálogo indisponível.');
@@ -131,6 +138,27 @@ class ProductCatalog extends ChangeNotifier {
     if (id != null && !_products.any((p) => p.id == id)) {
       throw StateError('Material não encontrado.');
     }
+    final previous = id == null
+        ? null
+        : _products.firstWhere((p) => p.id == id);
+    final selectedUnit = unit ?? previous?.unit ?? 'UN';
+    final minimum = minimumStock ?? previous?.minimumStock ?? 0;
+    final selectedLocation = (location ?? previous?.location ?? '').trim();
+    if (!Product.units.contains(selectedUnit) ||
+        minimum < 0 ||
+        minimum > 999999999 ||
+        selectedLocation.length > 60) {
+      throw const FormatException(
+        'Confira unidade, estoque mínimo e localização.',
+      );
+    }
+    if (previous != null &&
+        selectedUnit != previous.unit &&
+        _movements.any((m) => m.productId == id)) {
+      throw const FormatException(
+        'A unidade não pode ser alterada após movimentações.',
+      );
+    }
     final nextId =
         _products.fold<int>(0, (max, p) => p.id > max ? p.id : max) + 1;
     final product = Product(
@@ -138,6 +166,9 @@ class ProductCatalog extends ChangeNotifier {
       partNumber: partNumber.trim().toUpperCase(),
       name: name.trim(),
       category: category.trim(),
+      unit: selectedUnit,
+      minimumStock: minimum,
+      location: selectedLocation,
     );
     final updated = id == null
         ? [..._products, product]

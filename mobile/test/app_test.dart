@@ -24,9 +24,25 @@ void main() {
 
   Future<void> save(WidgetTester tester) async {
     final button = find.byKey(const Key('saveProductButton'));
-    await tester.ensureVisible(button);
+    await tester.scrollUntilVisible(
+      button,
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+    await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pumpAndSettle();
+    if (find.text('Novo material').evaluate().isNotEmpty ||
+        find.text('Editar material').evaluate().isNotEmpty) {
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('partNumberField')),
+        -250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+    }
   }
 
   Future<void> fill(

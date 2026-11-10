@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../products/product.dart';
+import '../products/product_catalog.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
     required this.onOpenProducts,
     required this.products,
+    required this.catalog,
   });
 
   final VoidCallback onOpenProducts;
   final List<Product> products;
+  final ProductCatalog catalog;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,7 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       children: [
         Text(
-          'Seu estoque,\nna palma da mão.',
+          'Seu almoxarifado,\nna palma da mão.',
           style: theme.textTheme.headlineLarge,
         ),
         const SizedBox(height: 12),
@@ -50,10 +53,29 @@ class HomePage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
+        Text(
+          'Reposição: ${catalog.replenishment.length} material(is)',
+          style: theme.textTheme.titleLarge,
+        ),
+        const Text(
+          'Materiais no mínimo ou abaixo dele. Configure um mínimo maior que zero no cadastro.',
+        ),
+        for (final product in catalog.replenishment)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(product.name),
+            subtitle: Text(
+              '${product.partNumber} • ${product.location.isEmpty ? "Sem localização" : product.location}',
+            ),
+            trailing: Text(
+              '${catalog.balance(product.id)} / ${product.minimumStock} ${product.unit}',
+            ),
+          ),
+        const SizedBox(height: 24),
         Text('Próximas entregas', style: theme.textTheme.titleLarge),
         const SizedBox(height: 8),
         const Text(
-          'Integração com a API e controle de movimentações serão adicionados em etapas. '
+          'Banco central, login e requisições por setor serão adicionados em etapas. '
           'Os cadastros atuais ficam salvos somente neste navegador ou aparelho.',
         ),
       ],
