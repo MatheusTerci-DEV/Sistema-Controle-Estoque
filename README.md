@@ -4,6 +4,8 @@ Atualização iniciada em **10 de novembro de 2026**. O projeto está evoluindo 
 
 ## Aplicativo mobile
 
+**Prévia online:** https://matheusterci-dev.github.io/Sistema-Controle-Estoque/
+
 O aplicativo fica em [`mobile/`](mobile/README.md): início, oito materiais de demonstração, pesquisa, detalhes, cadastro e edição com persistência local. Os dados são salvos no aparelho ou no navegador, conforme a plataforma. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
 
 Veja o [roteiro de apresentação e testes](docs/APRESENTACAO_TESTES_MOBILE.md). A automação na aba Actions testa o app e publica a prévia web no GitHub Pages. A geração de APK fica disponível para execução manual.
