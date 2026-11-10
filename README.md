@@ -1,12 +1,12 @@
 # PIM Estoque — mobile em Flutter
 
-Atualização iniciada em **10 de novembro de 2026**. O projeto está evoluindo para um aplicativo mobile em **Flutter/Dart**, com entregas pequenas e commits separados.
+Atualização iniciada em **10 de novembro de 2026**. O projeto está evoluindo para um aplicativo mobile em **Flutter/Dart** (Android e web), com entregas pequenas e commits separados.
 
 ## Aplicativo mobile
 
-O aplicativo fica em [`mobile/`](mobile/README.md): início, oito materiais de demonstração, pesquisa, detalhes, cadastro e edição com persistência local. Os dados são salvos no aparelho. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
+O aplicativo fica em [`mobile/`](mobile/README.md): início, oito materiais de demonstração, pesquisa, detalhes, cadastro e edição com persistência local. Os dados são salvos no aparelho ou no navegador, conforme a plataforma. Integração com a API e operações de estoque serão implementadas nas próximas entregas.
 
-Veja o [roteiro de apresentação e testes](docs/APRESENTACAO_TESTES_MOBILE.md). A automação na aba Actions testa o app e tenta gerar um APK de debug para demonstração.
+Veja o [roteiro de apresentação e testes](docs/APRESENTACAO_TESTES_MOBILE.md). A automação na aba Actions testa o app e publica a prévia web no GitHub Pages. A geração de APK fica disponível para execução manual.
 
 ```bash
 cd mobile

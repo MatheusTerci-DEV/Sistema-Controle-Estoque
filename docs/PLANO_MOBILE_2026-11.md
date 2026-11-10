@@ -44,3 +44,7 @@ Executar flutter analyze e flutter test. O build e a instalação Android depend
 ## Segunda etapa — materiais para apresentação
 
 Oito materiais fictícios, cadastro, edição e persistência em arquivo JSON local, com validação de campos obrigatórios e part number único. Catálogo e totais refletem os dados salvos. Testes cobrem falhas, recuperação, reabertura de arquivo e navegação. A automação do GitHub executa análise, testes e build do APK de debug. Consulte APRESENTACAO_TESTES_MOBILE.md para o roteiro.
+
+## Terceira etapa — prévia web
+
+Suporte Flutter Web, persistência no navegador por localStorage e publicação no GitHub Pages pelo workflow PIM Estoque Web. A geração de APK passa a ser manual. Os cadastros são independentes por navegador/aparelho; não há API nem sincronização.

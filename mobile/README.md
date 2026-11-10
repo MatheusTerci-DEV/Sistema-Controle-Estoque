@@ -1,6 +1,6 @@
 # PIM Estoque Mobile
 
-Aplicativo Flutter/Dart com foco em Android. Entrega de 10/11/2026 para demonstração acadêmica: consulta, cadastro e edição de materiais com persistência local.
+Aplicativo Flutter/Dart para Android e navegador. Entrega de 10/11/2026 para demonstração acadêmica: consulta, cadastro e edição de materiais com persistência local.
 
 ## Funcionalidades
 
@@ -9,12 +9,13 @@ Aplicativo Flutter/Dart com foco em Android. Entrega de 10/11/2026 para demonstr
 - Cadastro e edição, com campos obrigatórios e limites de tamanho.
 - Part number único, ignorando caixa e espaços nas extremidades; salvo em maiúsculas.
 - Totais de produtos e categorias atualizados no início.
-- Gravação local em arquivo JSON versionado no diretório de documentos do aplicativo.
+- Android: gravação em arquivo JSON versionado no diretório do aplicativo.
+- Web: gravação do mesmo catálogo no armazenamento local do navegador.
 - Recuperação de falhas sem substituir dados existentes por exemplos.
 
 O catálogo de exemplos é salvo apenas se o arquivo ainda não existir. As gravações usam um arquivo temporário, seguido de renomeação, e a interface só confirma o salvamento após a conclusão. As operações de gravação são serializadas pelo catálogo.
 
-Os dados ficam somente no aparelho: não há sincronização, autenticação ou conexão com a API. Limpar os dados ou desinstalar o app pode remover os cadastros. Saldo, endereços, exclusão e movimentações ainda não fazem parte desta entrega.
+Os dados ficam somente no aparelho ou navegador usado: não há sincronização, autenticação ou conexão com a API. Limpar os dados, desinstalar o app ou apagar os dados do site pode remover os cadastros. Navegadores e aparelhos diferentes têm catálogos independentes; abas abertas simultaneamente não sincronizam alterações automaticamente. Saldo, endereços, exclusão e movimentações ainda não fazem parte desta entrega.
 
 ## Executar
 
@@ -35,7 +36,7 @@ flutter test --no-pub
 flutter build apk --debug --no-pub
 ```
 
-A automação `.github/workflows/mobile.yml` executa análise, testes e build Android. Quando a execução terminar com sucesso, o APK estará no artefato `pim-estoque-demo-android`, na aba Actions. O APK de debug é destinado a testes locais, não à publicação em loja.
+A automação `.github/workflows/mobile.yml` executa análise, testes e build Android somente quando solicitada manualmente. Quando a execução terminar com sucesso, o APK estará no artefato `pim-estoque-demo-android`, na aba Actions. O APK de debug é destinado a testes locais, não à publicação em loja.
 
 ## Organização
 
@@ -48,3 +49,13 @@ A automação `.github/workflows/mobile.yml` executa análise, testes e build An
 - `test/`: regras, persistência em arquivo real e fluxos de interface.
 
 Consulte `../docs/APRESENTACAO_TESTES_MOBILE.md` para o roteiro de demonstração e `../docs/PLANO_MOBILE_2026-11.md` para as próximas entregas.
+
+## Prévia web no GitHub Pages
+
+O workflow `.github/workflows/pages.yml` publica a branch de desenvolvimento e a main no GitHub Pages após análise, testes e build. O repositório precisa estar com Pages habilitado e origem **GitHub Actions**. A publicação usa o subcaminho `/Sistema-Controle-Estoque/`.
+
+```bash
+flutter build web --release --base-href /Sistema-Controle-Estoque/ --no-web-resources-cdn
+```
+
+O armazenamento é selecionado por importação condicional: arquivo no Android e `localStorage` na web. Os oito materiais de demonstração continuam sendo carregados somente se não existir um catálogo salvo. No celular, use o mesmo navegador para manter os cadastros entre acessos.

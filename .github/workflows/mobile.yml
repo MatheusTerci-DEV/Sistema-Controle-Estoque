@@ -1,11 +1,6 @@
 name: PIM Estoque Mobile
 
 on:
-  push:
-    branches: [main, feat/flutter-mobile-novembro-2026]
-    paths: ['mobile/**', '.github/workflows/mobile.yml']
-  pull_request:
-    paths: ['mobile/**', '.github/workflows/mobile.yml']
   workflow_dispatch:
 
 permissions:
