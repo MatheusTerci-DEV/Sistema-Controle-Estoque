@@ -36,10 +36,7 @@ class HomePage extends StatelessWidget {
               children: [
                 const Icon(Icons.inventory_2_outlined, size: 36),
                 const SizedBox(height: 16),
-                Text(
-                  'Materiais neste aparelho',
-                  style: theme.textTheme.titleLarge,
-                ),
+                Text('Seu catálogo local', style: theme.textTheme.titleLarge),
                 const SizedBox(height: 8),
                 Text('${products.length} produtos • $categories categorias'),
                 const SizedBox(height: 20),
@@ -57,7 +54,7 @@ class HomePage extends StatelessWidget {
         const SizedBox(height: 8),
         const Text(
           'Integração com a API e controle de movimentações serão adicionados em etapas. '
-          'Os cadastros atuais ficam salvos somente neste aparelho.',
+          'Os cadastros atuais ficam salvos somente neste navegador ou aparelho.',
         ),
       ],
     );

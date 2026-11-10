@@ -36,7 +36,7 @@ class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
-    _catalog = widget.catalog ?? ProductCatalog(FileProductStorage());
+    _catalog = widget.catalog ?? ProductCatalog(createProductStorage());
     _catalog.load();
   }
 

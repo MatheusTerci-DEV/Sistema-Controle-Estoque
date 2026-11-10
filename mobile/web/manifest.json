@@ -1,0 +1,19 @@
+{
+  "name": "PIM Estoque",
+  "short_name": "PIM Estoque",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F5F7F8",
+  "theme_color": "#176B5B",
+  "description": "Cadastro e consulta de materiais — demonstração acadêmica em Flutter.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

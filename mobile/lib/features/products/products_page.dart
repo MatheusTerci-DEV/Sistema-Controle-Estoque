@@ -34,7 +34,7 @@ class _ProductsPageState extends State<ProductsPage> {
       // Mostrar o material recém-cadastrado mesmo que uma pesquisa anterior o excluísse.
       setState(_search.clear);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Material salvo neste aparelho.')),
+        const SnackBar(content: Text('Material salvo localmente.')),
       );
     }
   }
