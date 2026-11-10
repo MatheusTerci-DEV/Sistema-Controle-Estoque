@@ -34,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _server = TextEditingController(text: defaultApiUrl());
   final _storage = createAuthStorage();
   String? _error;
   bool _loading = false;
@@ -61,19 +62,24 @@ class _LoginPageState extends State<LoginPage> {
       _error = null;
     });
     try {
-      final session = await ApiClient().login(
-        _email.text.trim(),
-        _password.text,
+      final server = _server.text.trim();
+      final login = await ApiClient(baseUrl: server)
+          .login(_email.text.trim(), _password.text);
+      final session = LoginResult(
+        token: login.token,
+        user: login.user,
+        server: server,
       );
       await _storage.write(session.encode());
       if (mounted) _open(session);
     } on ApiException catch (error) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _error = error.statusCode == 401
               ? 'Email ou senha inválidos.'
               : 'Não foi possível conectar à API.',
         );
+      }
     } catch (_) {
       if (mounted) setState(() => _error = 'Não foi possível conectar à API.');
     } finally {
@@ -91,6 +97,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _server.dispose();
     super.dispose();
   }
 
@@ -129,6 +136,21 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: const InputDecoration(labelText: 'Senha'),
                   validator: (v) =>
                       v == null || v.isEmpty ? 'Informe a senha.' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  key: const Key('loginServerField'),
+                  controller: _server,
+                  keyboardType: TextInputType.url,
+                  decoration: const InputDecoration(
+                    labelText: 'Servidor da API',
+                    helperText: 'Ex.: http://192.168.0.10:8080',
+                  ),
+                  validator: (v) =>
+                      Uri.tryParse(v?.trim() ?? '')?.hasAuthority == true &&
+                          v!.trim().startsWith('http')
+                      ? null
+                      : 'Informe http://endereço:porta.',
                 ),
                 const SizedBox(height: 16),
                 if (_error != null)
@@ -182,6 +204,7 @@ class _AppShellState extends State<AppShell> {
           api: widget.session == null
               ? null
               : ApiClient(
+                  baseUrl: widget.session!.server,
                   token: widget.session!.token,
                   onUnauthorized: _logout,
                 ),

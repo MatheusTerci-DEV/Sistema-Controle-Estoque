@@ -138,12 +138,13 @@ class _ProductsPageState extends State<ProductsPage> {
         ),
       );
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Não foi possível carregar o histórico.'),
           ),
         );
+      }
     }
   }
 

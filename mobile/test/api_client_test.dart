@@ -17,6 +17,23 @@ void main() {
     expect(result.user.profile, 'Operador');
   });
 
+  test('sessão salva preserva o servidor escolhido', () {
+    const user = AuthUser(
+      id: 1,
+      name: 'Ana',
+      email: 'a@x',
+      profile: 'Consulta',
+    );
+    final saved = LoginResult.decode(
+      const LoginResult(
+        token: 't',
+        user: user,
+        server: 'http://192.168.0.10:8080',
+      ).encode(),
+    );
+    expect(saved.server, 'http://192.168.0.10:8080');
+  });
+
   test('cliente envia Bearer', () async {
     var authorization = '';
     final client = MockClient((request) async {
