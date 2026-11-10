@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PIM Estoque — Painel administrativo</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="marca">
+      <strong>PIM Estoque</strong>
+      <span>Fixar Manutenção — almoxarifado</span>
+    </div>
+    <div class="sessao" id="sessao" hidden>
+      <span id="usuario-atual"></span>
+      <button type="button" class="secundario" id="sair">Sair</button>
+    </div>
+  </header>
+
+  <nav id="menu" aria-label="Seções do painel" hidden>
+    <ul>
+      <li><button type="button" data-view="painel">Painel</button></li>
+      <li><button type="button" data-view="produtos">Materiais</button></li>
+      <li><button type="button" data-view="movimentacoes">Movimentações</button></li>
+      <li><button type="button" data-view="fornecedores">Fornecedores</button></li>
+      <li data-admin><button type="button" data-view="usuarios">Usuários</button></li>
+    </ul>
+  </nav>
+
+  <main id="conteudo" tabindex="-1">
+    <p id="mensagem" role="status" aria-live="polite"></p>
+    <noscript><p class="erro">O painel precisa de JavaScript habilitado.</p></noscript>
+
+    <section id="login" class="cartao estreito" aria-labelledby="titulo-login">
+      <h1 id="titulo-login" tabindex="-1">Entrar</h1>
+      <form id="form-login">
+        <label for="login-email">E-mail</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="120">
+        <label for="login-senha">Senha</label>
+        <input id="login-senha" name="senha" type="password" autocomplete="current-password" required maxlength="100">
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
+
+    <section id="painel" class="view" aria-labelledby="titulo-painel" hidden>
+      <h1 id="titulo-painel" tabindex="-1">Painel</h1>
+      <dl class="indicadores">
+        <div><dt>Materiais cadastrados</dt><dd id="ind-total">–</dd></div>
+        <div><dt>Itens para repor</dt><dd id="ind-repor">–</dd></div>
+        <div><dt>Saldo total (unidades)</dt><dd id="ind-saldo">–</dd></div>
+        <div><dt>Movimentações hoje</dt><dd id="ind-hoje">–</dd></div>
+      </dl>
+      <div class="tabela">
+        <table>
+          <caption>Saldo por categoria</caption>
+          <thead><tr><th scope="col">Categoria</th><th scope="col" class="num">Materiais</th><th scope="col" class="num">Saldo</th></tr></thead>
+          <tbody id="tabela-categorias"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="produtos" class="view" aria-labelledby="titulo-produtos" hidden>
+      <h1 id="titulo-produtos" tabindex="-1">Materiais</h1>
+      <form id="form-produto" class="cartao grade" data-escrita>
+        <fieldset>
+          <legend>Novo material</legend>
+          <input type="hidden" name="id">
+          <div><label for="p-part">Part number</label>
+            <input id="p-part" name="partNumber" required inputmode="numeric" pattern="(47|48|84|86)[0-9]{6}" maxlength="8" aria-describedby="p-part-ajuda">
+            <small id="p-part-ajuda">8 dígitos, começando por 47, 48, 84 ou 86.</small></div>
+          <div><label for="p-nome">Nome do material</label><input id="p-nome" name="nomeProduto" required maxlength="100"></div>
+          <div><label for="p-cat">Categoria</label><input id="p-cat" name="categoria" required maxlength="60"></div>
+          <div><label for="p-unit">Unidade</label>
+            <select id="p-unit" name="unit"><option>UN</option><option>PC</option><option>PAR</option><option>CX</option><option>PCT</option><option>RL</option></select></div>
+          <div><label for="p-loc">Localização</label><input id="p-loc" name="location" maxlength="60"></div>
+          <div><label for="p-min">Estoque mínimo</label><input id="p-min" name="minimumStock" type="number" min="0" max="999999999" value="0" required></div>
+        </fieldset>
+        <div class="acoes"><button type="submit">Salvar material</button><button type="reset" class="secundario">Cancelar</button></div>
+      </form>
+
+      <form id="form-busca" class="filtros" role="search">
+        <label for="busca">Buscar</label>
+        <input id="busca" name="busca" type="search" placeholder="Part number, nome, categoria ou local">
+        <label class="check"><input type="checkbox" name="reposicao"> Somente itens para repor</label>
+        <button type="submit">Filtrar</button>
+      </form>
+      <div class="tabela">
+        <table>
+          <caption>Materiais cadastrados</caption>
+          <thead><tr><th scope="col">Part number</th><th scope="col">Material</th><th scope="col">Categoria</th><th scope="col">Un.</th><th scope="col">Local</th><th scope="col" class="num">Mínimo</th><th scope="col" class="num">Saldo</th><th scope="col">Situação</th><th scope="col" data-escrita>Ações</th></tr></thead>
+          <tbody id="tabela-produtos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="movimentacoes" class="view" aria-labelledby="titulo-mov" hidden>
+      <h1 id="titulo-mov" tabindex="-1">Movimentações</h1>
+      <form id="form-mov" class="cartao grade" data-escrita>
+        <fieldset>
+          <legend>Registrar entrada ou saída</legend>
+          <div><label for="m-prod">Material</label><select id="m-prod" name="produtoId" required></select></div>
+          <div><label for="m-tipo">Tipo</label>
+            <select id="m-tipo" name="tipo"><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>
+          <div><label for="m-qtd">Quantidade</label><input id="m-qtd" name="quantidade" type="number" min="1" max="999999999" required></div>
+          <div><label for="m-motivo">Motivo</label><input id="m-motivo" name="motivo" required maxlength="150" placeholder="Ex.: NF 123, obra Condomínio Azul"></div>
+          <div><label for="m-forn">Fornecedor (opcional)</label><select id="m-forn" name="fornecedorId"></select></div>
+        </fieldset>
+        <div class="acoes"><button type="submit">Registrar</button></div>
+      </form>
+      <div class="tabela">
+        <table>
+          <caption>100 movimentações mais recentes</caption>
+          <thead><tr><th scope="col">Data</th><th scope="col">Material</th><th scope="col">Tipo</th><th scope="col" class="num">Quantidade</th><th scope="col">Motivo</th><th scope="col">Usuário</th><th scope="col">Fornecedor</th></tr></thead>
+          <tbody id="tabela-mov"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fornecedores" class="view" aria-labelledby="titulo-forn" hidden>
+      <h1 id="titulo-forn" tabindex="-1">Fornecedores</h1>
+      <form id="form-forn" class="cartao grade" data-escrita>
+        <fieldset>
+          <legend>Novo fornecedor</legend>
+          <input type="hidden" name="id">
+          <div><label for="f-nome">Nome</label><input id="f-nome" name="nome" required maxlength="100"></div>
+          <div><label for="f-cnpj">CNPJ (somente números)</label><input id="f-cnpj" name="cnpj" required inputmode="numeric" pattern="[0-9]{14}" maxlength="14"></div>
+          <div><label for="f-tel">Telefone</label><input id="f-tel" name="telefone" type="tel" maxlength="20"></div>
+          <div><label for="f-email">E-mail</label><input id="f-email" name="email" type="email" maxlength="120"></div>
+          <div><label class="check"><input type="checkbox" name="ativo" checked> Ativo</label></div>
+        </fieldset>
+        <div class="acoes"><button type="submit">Salvar fornecedor</button><button type="reset" class="secundario">Cancelar</button></div>
+      </form>
+      <div class="tabela">
+        <table>
+          <caption>Fornecedores cadastrados</caption>
+          <thead><tr><th scope="col">Nome</th><th scope="col">CNPJ</th><th scope="col">Telefone</th><th scope="col">E-mail</th><th scope="col">Situação</th><th scope="col" data-escrita>Ações</th></tr></thead>
+          <tbody id="tabela-forn"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="usuarios" class="view" aria-labelledby="titulo-usu" hidden>
+      <h1 id="titulo-usu" tabindex="-1">Usuários</h1>
+      <form id="form-usu" class="cartao grade">
+        <fieldset>
+          <legend>Novo usuário</legend>
+          <input type="hidden" name="id">
+          <div><label for="u-nome">Nome</label><input id="u-nome" name="nome" required maxlength="100"></div>
+          <div><label for="u-email">E-mail</label><input id="u-email" name="email" type="email" required maxlength="120" autocomplete="off"></div>
+          <div><label for="u-senha">Senha</label><input id="u-senha" name="senha" type="password" minlength="8" maxlength="100" autocomplete="new-password" aria-describedby="u-senha-ajuda">
+            <small id="u-senha-ajuda">Mínimo de 8 caracteres. Na edição, deixe em branco para manter a atual.</small></div>
+          <div><label for="u-perfil">Perfil</label>
+            <select id="u-perfil" name="perfil"><option>Operador</option><option>Consulta</option><option>Administrador</option></select></div>
+          <div><label class="check"><input type="checkbox" name="ativo" checked> Ativo</label></div>
+        </fieldset>
+        <div class="acoes"><button type="submit">Salvar usuário</button><button type="reset" class="secundario">Cancelar</button></div>
+      </form>
+      <div class="tabela">
+        <table>
+          <caption>Usuários do sistema</caption>
+          <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th><th scope="col">Perfil</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead>
+          <tbody id="tabela-usu"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
