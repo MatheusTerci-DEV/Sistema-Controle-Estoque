@@ -6,27 +6,27 @@ Data: 10/11/2026. Versão: 0.2.0+2. Demonstração acadêmica com catálogo fict
 
 | Part number | Material | Categoria |
 | --- | --- | --- |
-| PIM-1001 | Filtro de óleo | Filtros |
-| PIM-1002 | Filtro de ar | Filtros |
-| PIM-2001 | Parafuso M10 × 30 | Fixadores |
-| PIM-2002 | Porca M10 | Fixadores |
-| PIM-2003 | Arruela M10 | Fixadores |
-| PIM-3001 | Rolamento 6204 | Rolamentos |
-| PIM-4001 | Correia de transmissão | Transmissão |
-| PIM-5001 | Mangueira hidráulica | Hidráulica |
+| 47000001 | Filtro de óleo | Filtros |
+| 47000002 | Filtro de ar | Filtros |
+| 48000001 | Parafuso M10 × 30 | Fixadores |
+| 48000002 | Porca M10 | Fixadores |
+| 48000003 | Arruela M10 | Fixadores |
+| 84000001 | Rolamento 6204 | Rolamentos |
+| 86000001 | Correia de transmissão | Transmissão |
+| 86000002 | Mangueira hidráulica | Hidráulica |
 
 ## Roteiro sugerido — 5 a 8 minutos
 
 1. **Início:** mostrar oito produtos e cinco categorias em uma instalação nova. Explicar o aviso de demonstração e a persistência local.
-2. **Consulta:** abrir Produtos e pesquisar `PIM-1001`. Abrir Filtro de óleo e mostrar os detalhes. Fechar, limpar a busca e pesquisar `Fixadores`: três resultados.
+2. **Consulta:** abrir Produtos e pesquisar `47000001`. Abrir Filtro de óleo e mostrar os detalhes. Fechar, limpar a busca e pesquisar `Fixadores`: três resultados.
 3. **Cadastro:** abrir Cadastrar material e tentar salvar vazio. Mostrar as mensagens de campos obrigatórios.
-4. **Duplicidade:** preencher `pim-1001`, `Outro filtro` e `Filtros`. Tentar salvar: o part number deve ser recusado mesmo em minúsculas.
-5. **Novo material:** alterar para `PIM-9001`, `Sensor de pressão` e `Elétrica`. Salvar. Mostrar a confirmação e os nove produtos. No Início, o total passa para nove produtos e seis categorias.
-6. **Edição:** pesquisar `PIM-9001`, abrir detalhes, escolher Editar material e alterar o nome para `Sensor de pressão revisado`. Salvar sem mudar o part number: a edição do próprio código é permitida.
-7. **Persistência:** fechar completamente e reabrir o aplicativo. Pesquisar `PIM-9001` e conferir o nome revisado.
+4. **Duplicidade:** preencher `47000001`, `Outro filtro` e `Filtros`. Tentar salvar: o part number deve ser recusado por já estar cadastrado.
+5. **Novo material:** alterar para `86009001`, `Sensor de pressão` e `Elétrica`. Salvar. Mostrar a confirmação e os nove produtos. No Início, o total passa para nove produtos e seis categorias.
+6. **Edição:** pesquisar `86009001`, abrir detalhes, escolher Editar material e alterar o nome para `Sensor de pressão revisado`. Salvar sem mudar o part number: a edição do próprio código é permitida.
+7. **Persistência:** fechar completamente e reabrir o aplicativo. Pesquisar `86009001` e conferir o nome revisado.
 8. **Busca vazia:** pesquisar `XYZ-INEXISTENTE` e mostrar a mensagem sem resultados. Limpar a busca.
 
-Os totais do roteiro pressupõem uma instalação nova. Se o material de teste já existir, use outro part number, como `PIM-9002`. Não limpe os dados do aplicativo para repetir o teste se quiser preservar os cadastros.
+Os totais do roteiro pressupõem uma instalação nova. Se o material de teste já existir, use outro part number, como `86009002`. Não limpe os dados do aplicativo para repetir o teste se quiser preservar os cadastros.
 
 ## Evidências automatizadas
 

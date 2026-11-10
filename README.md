@@ -20,9 +20,9 @@ Veja o [plano de novembro](docs/PLANO_MOBILE_2026-11.md) para a sequência de im
 
 ## Situação da API
 
-Os arquivos .NET na raiz estão incompletos: faltam Controllers, Data, Models e Services referenciados pelo projeto. O código anterior pode ser recuperado do commit `3c5da55`, dentro de `sistema-controle-estoque/`. A API precisa ser recuperada e validada antes da integração mobile.
+A raiz agora contém a API .NET 8 para produtos e movimentações, com EF Core/SQL Server, validações e testes HTTP. Veja [execução e contrato](docs/API_ALMOXARIFADO.md). A API é uma base local e ainda não está integrada ao Pages nem pronta para exposição pública com múltiplos usuários.
 
-A documentação web abaixo descreve a versão histórica. Os comandos dessa versão dependem da recuperação dos arquivos ausentes.
+A documentação abaixo descreve a versão web histórica; para executar a nova API use o documento acima.
 
 ---
 
