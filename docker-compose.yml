@@ -53,7 +53,8 @@ services:
       Seed__AdminEmail: admin@fixar.com.br
       Seed__AdminSenha: Admin@123
     ports:
-      - "127.0.0.1:8080:8080"  # somente local; credenciais do compose são de demonstração
+      # Padrão: só este PC. Para testar no celular na mesma Wi-Fi: API_BIND=0.0.0.0 docker compose up
+      - "${API_BIND:-127.0.0.1}:8080:8080"
 
 volumes:
   mssql-data:
