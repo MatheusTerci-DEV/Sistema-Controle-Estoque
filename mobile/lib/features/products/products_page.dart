@@ -58,6 +58,10 @@ class _ProductsPageState extends State<ProductsPage> {
               ),
               const SizedBox(height: 16),
               Text('Part number: ${product.partNumber}'),
+              if (product.needsCodeReview)
+                const Text(
+                  'Código antigo fora do padrão. Edite para informar o código correto de 8 dígitos.',
+                ),
               const SizedBox(height: 8),
               Text('Categoria: ${product.category}'),
               const SizedBox(height: 12),

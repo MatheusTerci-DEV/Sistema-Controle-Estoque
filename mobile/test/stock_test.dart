@@ -15,7 +15,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(DropdownButtonFormField<int>));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('PIM-1001 • Filtro de óleo').last);
+    await tester.tap(find.text('47000001 • Filtro de óleo').last);
     await tester.pumpAndSettle();
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Quantidade'),
@@ -56,7 +56,7 @@ void main() {
       );
       await catalog.save(
         id: 1,
-        partNumber: 'PIM-1001',
+        partNumber: '47000001',
         name: 'Filtro revisado',
         category: 'Filtros',
       );

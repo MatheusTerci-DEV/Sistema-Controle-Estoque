@@ -47,7 +47,7 @@ void main() {
 
   Future<void> fill(
     WidgetTester tester, {
-    String pn = 'PIM-9001',
+    String pn = '86009001',
     String name = 'Sensor de pressão',
   }) async {
     await tester.enterText(find.byKey(const Key('partNumberField')), pn);
@@ -62,12 +62,12 @@ void main() {
     expect(find.textContaining('Demonstração •'), findsOneWidget);
     await openProducts(tester);
     expect(find.text('8 produto(s) encontrado(s)'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'PIM-1001');
+    await tester.enterText(find.byType(TextField), '47000001');
     await tester.pumpAndSettle();
     expect(find.text('1 produto(s) encontrado(s)'), findsOneWidget);
     await tester.tap(find.text('Filtro de óleo'));
     await tester.pumpAndSettle();
-    expect(find.text('Part number: PIM-1001'), findsOneWidget);
+    expect(find.text('Part number: 47000001'), findsOneWidget);
     await tester.tap(find.text('Fechar'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'inexistente');
@@ -89,7 +89,7 @@ void main() {
     await fill(tester);
     await save(tester);
     expect(find.text('9 produto(s) encontrado(s)'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'PIM-9001');
+    await tester.enterText(find.byType(TextField), '86009001');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sensor de pressão'));
     await tester.pumpAndSettle();
@@ -106,7 +106,7 @@ void main() {
     await openApp(tester, storage);
     expect(find.text('9 produtos • 6 categorias'), findsOneWidget);
     await openProducts(tester);
-    await tester.enterText(find.byType(TextField), 'PIM-9001');
+    await tester.enterText(find.byType(TextField), '86009001');
     await tester.pumpAndSettle();
     expect(find.text('Sensor revisado'), findsOneWidget);
   });
@@ -122,7 +122,7 @@ void main() {
     expect(find.text('Informe o part number.'), findsOneWidget);
     expect(find.text('Informe o nome do material.'), findsOneWidget);
     expect(find.text('Informe a categoria.'), findsOneWidget);
-    await fill(tester, pn: '  pim-1001  ');
+    await fill(tester, pn: '  47000001  ');
     await save(tester);
     expect(
       find.text('Já existe um material com este part number.'),

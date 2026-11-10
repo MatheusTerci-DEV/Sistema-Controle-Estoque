@@ -28,7 +28,7 @@ void main() {
       await catalog.load();
       await catalog.save(
         id: 1,
-        partNumber: 'PIM-1001',
+        partNumber: '47000001',
         name: 'Filtro',
         category: 'Filtros',
         unit: 'PC',
@@ -53,7 +53,7 @@ void main() {
       expect(catalog.replenishment.length, 1);
       await catalog.save(
         id: 1,
-        partNumber: 'PIM-1001',
+        partNumber: '47000001',
         name: 'Filtro novo',
         category: 'Filtros',
       );
@@ -75,7 +75,7 @@ void main() {
       await expectLater(
         catalog.save(
           id: 1,
-          partNumber: 'PIM-1001',
+          partNumber: '47000001',
           name: 'Filtro',
           category: 'Filtros',
           unit: 'INVALIDA',
@@ -85,7 +85,7 @@ void main() {
       await expectLater(
         catalog.save(
           id: 1,
-          partNumber: 'PIM-1001',
+          partNumber: '47000001',
           name: 'Filtro',
           category: 'Filtros',
           minimumStock: -1,
@@ -101,7 +101,7 @@ void main() {
       await expectLater(
         catalog.save(
           id: 1,
-          partNumber: 'PIM-1001',
+          partNumber: '47000001',
           name: 'Filtro',
           category: 'Filtros',
           unit: 'CX',

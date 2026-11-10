@@ -62,7 +62,29 @@ class ProductCatalog extends ChangeNotifier {
           if (row is! Map<String, dynamic>) {
             throw const FormatException('Material inválido.');
           }
-          return Product.fromJson(row);
+          final old = row['partNumber'];
+          const demoCodes = {
+            'PIM-1001': '47000001',
+            'PIM-1002': '47000002',
+            'PIM-2001': '48000001',
+            'PIM-2002': '48000002',
+            'PIM-2003': '48000003',
+            'PIM-3001': '84000001',
+            'PIM-4001': '86000001',
+            'PIM-5001': '86000002',
+          };
+          final replacement = demoCodes[old];
+          final collision =
+              replacement != null &&
+              (data['products'] as List).any(
+                (other) => other is Map && other['partNumber'] == replacement,
+              );
+          // Manter o id, unidade e histórico; não criar colisão com códigos existentes.
+          return Product.fromJson(
+            replacement == null || collision
+                ? row
+                : {...row, 'partNumber': replacement},
+          );
         }).toList();
         if (loaded.map((p) => p.id).toSet().length != loaded.length ||
             loaded.map((p) => p.partNumber.toUpperCase()).toSet().length !=
@@ -104,7 +126,9 @@ class ProductCatalog extends ChangeNotifier {
   String? validatePartNumber(String? value, {int? excludingId}) {
     final text = value?.trim() ?? '';
     if (text.isEmpty) return 'Informe o part number.';
-    if (text.length > 50) return 'Use até 50 caracteres.';
+    if (!Product.validPartNumber(text)) {
+      return 'Use 8 dígitos, começando por 47, 48, 84 ou 86.';
+    }
     if (_products.any(
       (p) =>
           p.id != excludingId &&
@@ -195,6 +219,11 @@ class ProductCatalog extends ChangeNotifier {
     }
     if (!_products.any((p) => p.id == productId)) {
       throw const FormatException('Selecione um material válido.');
+    }
+    if (_products.firstWhere((p) => p.id == productId).needsCodeReview) {
+      throw const FormatException(
+        'Atualize o part number deste material para o padrão de 8 dígitos antes de movimentar.',
+      );
     }
     if (quantity <= 0 || quantity > 999999999) {
       throw const FormatException(

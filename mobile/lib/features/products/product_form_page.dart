@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'product.dart';
 import 'product_catalog.dart';
@@ -107,8 +108,13 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   enabled: !_saving,
                   textCapitalization: TextCapitalization.characters,
                   textInputAction: TextInputAction.next,
-                  maxLength: 50,
-                  decoration: const InputDecoration(labelText: 'Part number'),
+                  maxLength: 8,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: const InputDecoration(
+                    labelText: 'Part number',
+                    helperText: '8 dígitos • prefixos 47, 48, 84 ou 86',
+                  ),
                   validator: (value) => widget.catalog.validatePartNumber(
                     value,
                     excludingId: widget.product?.id,

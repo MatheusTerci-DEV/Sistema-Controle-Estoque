@@ -36,16 +36,16 @@ void main() {
       addTearDown(first.dispose);
       await first.load();
       await first.save(
-        partNumber: '  pim-9001  ',
+        partNumber: '  86009001  ',
         name: '  Sensor  ',
         category: '  Elétrica  ',
       );
       final created = first.products.last;
-      expect(created.partNumber, 'PIM-9001');
+      expect(created.partNumber, '86009001');
       expect(created.name, 'Sensor');
       await first.save(
         id: created.id,
-        partNumber: 'pim-9001',
+        partNumber: '86009001',
         name: 'Sensor de pressão',
         category: 'Elétrica',
       );
@@ -73,7 +73,7 @@ void main() {
       await catalog.load();
       await expectLater(
         catalog.save(
-          partNumber: '  pim-1001 ',
+          partNumber: '  47000001 ',
           name: 'Outro filtro',
           category: 'Filtros',
         ),
@@ -82,7 +82,7 @@ void main() {
       await expectLater(
         catalog.save(
           id: 2,
-          partNumber: 'PIM-1001',
+          partNumber: '47000001',
           name: 'Filtro',
           category: 'Filtros',
         ),
@@ -129,7 +129,7 @@ void main() {
       storage.failWrite = true;
       await expectLater(
         catalog.save(
-          partNumber: 'PIM-9001',
+          partNumber: '86009001',
           name: 'Sensor',
           category: 'Elétrica',
         ),
@@ -140,7 +140,7 @@ void main() {
       expect(catalog.isSaving, isFalse);
       storage.failWrite = false;
       await catalog.save(
-        partNumber: 'PIM-9001',
+        partNumber: '86009001',
         name: 'Sensor',
         category: 'Elétrica',
       );
@@ -212,12 +212,12 @@ void main() {
       await catalog.load();
       storage.delay = Completer<void>();
       final saving = catalog.save(
-        partNumber: 'PN-A',
+        partNumber: '48009001',
         name: 'A',
         category: 'Teste',
       );
       await expectLater(
-        catalog.save(partNumber: 'PN-B', name: 'B', category: 'Teste'),
+        catalog.save(partNumber: '48009002', name: 'B', category: 'Teste'),
         throwsStateError,
       );
       storage.delay!.complete();

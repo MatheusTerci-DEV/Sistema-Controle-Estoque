@@ -14,6 +14,9 @@ class Product {
   final String partNumber;
   final String name;
   final String category;
+  static bool validPartNumber(String value) =>
+      value.length == 8 && RegExp(r'^(47|48|84|86)[0-9]{6}$').hasMatch(value);
+  bool get needsCodeReview => !validPartNumber(partNumber);
   static const units = ['UN', 'PC', 'PAR', 'CX', 'PCT', 'RL'];
   final String unit;
   final int minimumStock;
