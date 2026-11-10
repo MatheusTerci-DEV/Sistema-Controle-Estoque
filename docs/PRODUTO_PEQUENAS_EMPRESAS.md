@@ -1,5 +1,9 @@
 # PIM Estoque para pequenas empresas
 
+## Segmento definido
+
+Almoxarifado de materiais em geral: consumíveis, fixadores, EPIs, ferramentas, material elétrico, hidráulico e de limpeza. As categorias continuam livres, sem restringir o cadastro a peças automotivas.
+
 ## Objetivo e situação atual
 
 Evoluir o Flutter web/mobile para controle de materiais de uma pequena empresa, em entregas pequenas. A versão publicada ainda é uma demonstração local, não um serviço com dados compartilhados. Não deve ser apresentada como pronta para operar o estoque real de uma empresa.
@@ -32,3 +36,11 @@ Evoluir o Flutter web/mobile para controle de materiais de uma pequena empresa, 
 Confirmar primeiro segmento atendido (loja, oficina, materiais ou outro), necessidade de quantidades fracionadas e operação de uma ou várias empresas. Preservar Flutter e avaliar a recuperação da API .NET antes de escolher nova infraestrutura. Não colocar credenciais administrativas no app. GitHub Pages hospeda o frontend; banco, autenticação e regras compartilhadas exigem um backend.
 
 Vendas com pagamento, emissão fiscal, contabilidade, lotes e validade devem ser tratados como módulos próprios quando houver requisitos definidos.
+
+## Entrega de organização do almoxarifado
+
+Cadastro com unidade discreta (UN, PC, PAR, CX, PCT, RL), localização livre de até 60 caracteres e estoque mínimo inteiro. Mínimo zero desativa reposição; com mínimo maior que zero, saldo igual ou abaixo do mínimo gera alerta. Não há conversão automática entre caixas e peças. A unidade fica bloqueada após qualquer movimentação. Quantidades fracionadas (kg, litros e metros) precisam de uma etapa própria.
+
+Os novos campos usam UN, mínimo zero e localização vazia nos registros antigos, preservando cadastros e histórico. A pesquisa também aceita localização. O início mostra a lista de reposição, e a aba Estoque permite filtrar os materiais que precisam repor.
+
+Próximas entregas específicas: banco central e equipe; requisições por funcionário/setor; recebimentos por fornecedor/documento; inventário físico e estornos; itens controlados por lote/validade quando aplicável.
