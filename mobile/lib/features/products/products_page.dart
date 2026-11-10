@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'demo_products.dart';
+import 'product_catalog.dart';
+import 'product_form_page.dart';
 import 'product.dart';
 
 class ProductsPage extends StatefulWidget {
-  const ProductsPage({super.key});
+  const ProductsPage({super.key, required this.catalog});
+
+  final ProductCatalog catalog;
 
   @override
   State<ProductsPage> createState() => _ProductsPageState();
@@ -19,8 +22,25 @@ class _ProductsPageState extends State<ProductsPage> {
     super.dispose();
   }
 
-  void _showProduct(Product product) {
-    showModalBottomSheet<void>(
+  Future<void> _openForm([Product? product]) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ProductFormPage(catalog: widget.catalog, product: product),
+      ),
+    );
+    if (saved == true && mounted) {
+      // Mostrar o material recém-cadastrado mesmo que uma pesquisa anterior o excluísse.
+      setState(_search.clear);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Material salvo neste aparelho.')),
+      );
+    }
+  }
+
+  Future<void> _showProduct(Product product) async {
+    final edit = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -41,10 +61,16 @@ class _ProductsPageState extends State<ProductsPage> {
               Text('Categoria: ${product.category}'),
               const SizedBox(height: 20),
               const Text(
-                'Produto fictício. Saldo e localização ainda não estão disponíveis.',
+                'Catálogo local. Saldo e localização ainda não estão disponíveis.',
               ),
               const SizedBox(height: 20),
-              FilledButton(
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(context, true),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Editar material'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Fechar'),
               ),
@@ -53,11 +79,12 @@ class _ProductsPageState extends State<ProductsPage> {
         ),
       ),
     );
+    if (edit == true && mounted) await _openForm(product);
   }
 
   @override
   Widget build(BuildContext context) {
-    final products = demoProducts
+    final products = widget.catalog.products
         .where((p) => p.matches(_search.text))
         .toList();
     return CustomScrollView(
@@ -71,6 +98,12 @@ class _ProductsPageState extends State<ProductsPage> {
                 Text(
                   'Produtos',
                   style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: widget.catalog.isSaving ? null : () => _openForm(),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Cadastrar material'),
                 ),
                 const SizedBox(height: 16),
                 TextField(

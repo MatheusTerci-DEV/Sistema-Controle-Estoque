@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../products/demo_products.dart';
+import '../products/product.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.onOpenProducts});
+  const HomePage({
+    super.key,
+    required this.onOpenProducts,
+    required this.products,
+  });
 
   final VoidCallback onOpenProducts;
+  final List<Product> products;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final categories = demoProducts.map((p) => p.category).toSet().length;
+    final categories = products.map((p) => p.category).toSet().length;
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -32,13 +37,11 @@ class HomePage extends StatelessWidget {
                 const Icon(Icons.inventory_2_outlined, size: 36),
                 const SizedBox(height: 16),
                 Text(
-                  'Catálogo de demonstração',
+                  'Materiais neste aparelho',
                   style: theme.textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '${demoProducts.length} produtos • $categories categorias',
-                ),
+                Text('${products.length} produtos • $categories categorias'),
                 const SizedBox(height: 20),
                 FilledButton.icon(
                   onPressed: onOpenProducts,
@@ -53,8 +56,8 @@ class HomePage extends StatelessWidget {
         Text('Próximas entregas', style: theme.textTheme.titleLarge),
         const SizedBox(height: 8),
         const Text(
-          'Integração com a API, cadastro de produtos e controle de '
-          'movimentações serão adicionados em etapas.',
+          'Integração com a API e controle de movimentações serão adicionados em etapas. '
+          'Os cadastros atuais ficam salvos somente neste aparelho.',
         ),
       ],
     );
