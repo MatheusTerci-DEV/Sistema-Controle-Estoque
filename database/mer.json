@@ -1,0 +1,68 @@
+{
+  "entities": [
+    {
+      "name": "Usuarios",
+      "columns": [
+        { "name": "Id", "type": "int identity", "pk": true, "fk": null, "nullable": false },
+        { "name": "Nome", "type": "nvarchar(100)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Email", "type": "nvarchar(120) unique", "pk": false, "fk": null, "nullable": false },
+        { "name": "SenhaHash", "type": "nvarchar(200)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Perfil", "type": "nvarchar(20)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Ativo", "type": "bit", "pk": false, "fk": null, "nullable": false },
+        { "name": "CriadoEmUtc", "type": "datetime2", "pk": false, "fk": null, "nullable": false }
+      ]
+    },
+    {
+      "name": "Fornecedores",
+      "columns": [
+        { "name": "Id", "type": "int identity", "pk": true, "fk": null, "nullable": false },
+        { "name": "Nome", "type": "nvarchar(100)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Cnpj", "type": "char(14) unique", "pk": false, "fk": null, "nullable": false },
+        { "name": "Telefone", "type": "nvarchar(20)", "pk": false, "fk": null, "nullable": true },
+        { "name": "Email", "type": "nvarchar(120)", "pk": false, "fk": null, "nullable": true },
+        { "name": "Ativo", "type": "bit", "pk": false, "fk": null, "nullable": false }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "columns": [
+        { "name": "Id", "type": "int identity", "pk": true, "fk": null, "nullable": false },
+        { "name": "PartNumber", "type": "nvarchar(8) unique", "pk": false, "fk": null, "nullable": false },
+        { "name": "NomeProduto", "type": "nvarchar(100)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Categoria", "type": "nvarchar(60)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Unit", "type": "nvarchar(3)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Location", "type": "nvarchar(60)", "pk": false, "fk": null, "nullable": false },
+        { "name": "MinimumStock", "type": "int", "pk": false, "fk": null, "nullable": false },
+        { "name": "Saldo", "type": "int", "pk": false, "fk": null, "nullable": false }
+      ]
+    },
+    {
+      "name": "Movimentacoes",
+      "columns": [
+        { "name": "Id", "type": "bigint identity", "pk": true, "fk": null, "nullable": false },
+        { "name": "ProdutoId", "type": "int", "pk": false, "fk": "Produtos.Id", "nullable": false },
+        { "name": "Quantidade", "type": "int", "pk": false, "fk": null, "nullable": false },
+        { "name": "Motivo", "type": "nvarchar(150)", "pk": false, "fk": null, "nullable": false },
+        { "name": "CriadaEmUtc", "type": "datetime2", "pk": false, "fk": null, "nullable": false },
+        { "name": "UsuarioId", "type": "int", "pk": false, "fk": "Usuarios.Id", "nullable": true },
+        { "name": "FornecedorId", "type": "int", "pk": false, "fk": "Fornecedores.Id", "nullable": true }
+      ]
+    },
+    {
+      "name": "AuditoriaProdutos",
+      "columns": [
+        { "name": "Id", "type": "bigint identity", "pk": true, "fk": null, "nullable": false },
+        { "name": "ProdutoId", "type": "int", "pk": false, "fk": null, "nullable": false },
+        { "name": "Operacao", "type": "char(1)", "pk": false, "fk": null, "nullable": false },
+        { "name": "Dados", "type": "nvarchar(max)", "pk": false, "fk": null, "nullable": false },
+        { "name": "AlteradoEmUtc", "type": "datetime2", "pk": false, "fk": null, "nullable": false }
+      ]
+    }
+  ],
+  "relationships": [
+    { "from": "Produtos", "to": "Movimentacoes", "cardinality": "1:N" },
+    { "from": "Usuarios", "to": "Movimentacoes", "cardinality": "0..1:N" },
+    { "from": "Fornecedores", "to": "Movimentacoes", "cardinality": "0..1:N" },
+    { "from": "Produtos", "to": "AuditoriaProdutos", "cardinality": "1:N (lógica, sem FK; preenchida por trigger)" }
+  ]
+}
