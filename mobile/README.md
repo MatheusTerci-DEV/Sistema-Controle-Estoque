@@ -59,3 +59,10 @@ flutter build web --release --base-href /Sistema-Controle-Estoque/ --no-web-reso
 ```
 
 O armazenamento é selecionado por importação condicional: arquivo no Android e `localStorage` na web. Os oito materiais de demonstração continuam sendo carregados somente se não existir um catálogo salvo. No celular, use o mesmo navegador para manter os cadastros entre acessos.
+## API e navegação conectada
+
+Use `--dart-define=API_URL=http://host:5080` para apontar para a API. O padrão é `http://10.0.2.2:5080` no Android e `http://127.0.0.1:5080` na web. O login de desenvolvimento do contrato é `admin@fixar.com.br` / `Admin@123`, quando o seed estiver habilitado.
+
+O fluxo é: login → início → produtos → detalhes → movimentar; a aba Estoque registra entradas e saídas. `Sincronizar` envia a fila em ordem e mostra os pendentes. Erros 409 ficam para revisão e não são reenviados. Consulta pode ler, mas não vê ações de escrita. Sair remove a sessão; 401 retorna ao login.
+
+No login, `Usar sem servidor (demonstração)` mantém a prévia local do GitHub Pages. No modo conectado, a última lista de produtos é mantida como cache offline.
