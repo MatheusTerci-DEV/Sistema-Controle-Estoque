@@ -1,54 +1,89 @@
-# API do almoxarifado — primeira estrutura
+# API do almoxarifado e painel web
 
-Backend na raiz do repositório: C#/.NET 8, ASP.NET Core, EF Core e SQL Server. A referência antiga a Services/MVC foi removida; agora a raiz é uma API independente do Flutter.
+Backend na raiz do repositório: C#/.NET 8, ASP.NET Core, EF Core e SQL Server. Contrato completo (tabelas, perfis, rotas) em [CONTRATO_PIM_IV.md](CONTRATO_PIM_IV.md); banco em [database/README.md](../database/README.md).
 
-## Estado
+## Arquitetura em camadas
 
-A API está estruturada para execução local. O frontend do Pages continua usando armazenamento local: **não está conectado a esta API**. Autenticação, isolamento por empresa, idempotência de movimentações e implantação do backend ainda são próximos passos antes de disponibilizar acesso público. Não há dados de produção inseridos nem alterações aplicadas a bancos existentes.
+| Pasta | Responsabilidade |
+| --- | --- |
+| `Controllers/` | HTTP: rotas, `[Authorize]` por perfil, códigos de status. Sem regra de negócio. |
+| `Services/` | Regras de negócio (`ProdutoService`, `MovimentacaoService`, `FornecedorService`, `UsuarioService`, `AuthService`, `DashboardService`), hash de senha (`SenhaHasher`) e `ErroNegocio` (vira `{message}` com 400/404/409). |
+| `Data/` | `PimEstoqueContext` (EF Core): tamanhos, índices únicos, FKs e `HasTrigger` das triggers do banco. |
+| `Models/` | Entidades `Produto`, `Movimentacao`, `Usuario`, `Fornecedor` e os perfis. |
+| `Contracts/` | DTOs de entrada (com validação) e de saída. |
+| `wwwroot/` | Painel administrativo (HTML + CSS + JavaScript puro) servido pela própria API. |
 
-## Contrato
+## Autenticação e perfis
 
-Part number é string com exatamente 8 dígitos ASCII, prefixo 47, 48, 84 ou 86. A API não gera automaticamente códigos de materiais reais. Não aceita códigos alfanuméricos, prefixos diferentes, espaço ou quebra de linha. No Flutter, espaços nas extremidades são normalizados antes da validação; no JSON da API envie o código já normalizado.
+JWT Bearer. `POST /api/auth/login` com `{email, senha}` devolve `{token, expiraEmUtc, usuario}`; envie `Authorization: Bearer <token>` nas demais rotas. Só `/api/auth/login`, `/health` e os arquivos do painel são públicos. Usuário desativado perde o acesso imediatamente, mesmo com token válido.
 
-| Método | Rota | Comportamento |
-| --- | --- | --- |
-| GET | /health | Processo ativo; informa que não verificou o banco |
-| GET | /api/produtos | Busca opcional `busca`, filtro `reposicao=true`; até 500 resultados |
-| GET | /api/produtos/{id} | Material ou 404 |
-| POST | /api/produtos | Criar, saldo inicial zero; 201, 400 ou 409 |
-| PUT | /api/produtos/{id} | Editar metadados, preservando saldo; unidade bloqueada após movimentação |
-| GET | /api/movimentacoes | Últimas 100; filtro opcional `produtoId` |
-| POST | /api/movimentacoes | Entrada ou saída com atualização condicional de saldo e histórico na mesma transação |
+| Perfil | Pode |
+| --- | --- |
+| Administrador | tudo, inclusive usuários e exclusão de material sem histórico |
+| Operador | ler; cadastrar/editar materiais e fornecedores; registrar movimentações |
+| Consulta | somente leitura |
 
-Produto:
+Senhas: PBKDF2-SHA256, 100 000 iterações, salt aleatório de 16 bytes, gravadas como `iteracoes.saltBase64.hashBase64`; a API nunca devolve o hash.
+
+Configuração (`appsettings` ou variáveis de ambiente com `__`):
+
+| Chave | Uso |
+| --- | --- |
+| `ConnectionStrings:DefaultConnection` | SQL Server |
+| `Jwt:Key` | chave HMAC, **mínimo 32 bytes**; sem ela a API não inicia. A de `appsettings.Development.json` é só para desenvolvimento. |
+| `Jwt:Issuer`, `Jwt:ExpiraEmMinutos` | emissor/audiência (padrão `PimEstoque`) e validade (padrão 480) |
+| `Seed:AdminEmail`, `Seed:AdminSenha` | cria o administrador inicial se a tabela `Usuarios` estiver vazia (Development/Docker: `admin@fixar.com.br` / `Admin@123`) |
+| `Cors:Origins` | origens liberadas; vazio = fechado |
+
+## Rotas
+
+| Método | Rota | Perfil | Comportamento |
+| --- | --- | --- | --- |
+| GET | /health | público | processo ativo; não verifica o banco |
+| POST | /api/auth/login | público | token; 401 se e-mail/senha inválidos ou usuário inativo |
+| GET | /api/auth/me | autenticado | `{id,nome,email,perfil,ativo}` |
+| GET | /api/dashboard/resumo | autenticado | `{totalProdutos,itensReposicao,saldoTotal,movimentacoesHoje,porCategoria}` ("hoje" = dia UTC) |
+| GET | /api/produtos?busca=&reposicao=true | autenticado | até 500; `reposicao` = `MinimumStock > 0 AND Saldo <= MinimumStock` |
+| GET | /api/produtos/{id} | autenticado | material ou 404 |
+| POST / PUT | /api/produtos[/{id}] | Administrador, Operador | saldo inicial zero e preservado na edição; unidade bloqueada após movimentação; 409 part number duplicado |
+| DELETE | /api/produtos/{id} | Administrador | 204; 409 se houver movimentações |
+| GET | /api/movimentacoes?produtoId= | autenticado | 100 mais recentes com `usuarioNome` e `fornecedorNome` |
+| POST | /api/movimentacoes | Administrador, Operador | usuário vem do token; 404 material, 400 fornecedor inexistente/inativo, 409 saldo insuficiente |
+| GET / POST / PUT | /api/fornecedores[/{id}] | leitura: autenticado; escrita: Administrador, Operador | CNPJ com 14 dígitos, único (409) |
+| GET / POST / PUT | /api/usuarios[/{id}] | Administrador | senha obrigatória na criação; em branco na edição mantém a atual; e-mail único (409); o administrador não pode desativar nem rebaixar a si mesmo |
+
+Exemplos:
 
 ```json
 {"partNumber":"47000001","nomeProduto":"Parafuso M10","categoria":"Fixadores","unit":"PC","location":"A-01-02","minimumStock":10}
+{"produtoId":1,"quantidade":20,"tipo":"entrada","motivo":"Recebimento NF 123","fornecedorId":1}
 ```
 
-Movimentação:
+Part number: exatamente 8 dígitos ASCII com prefixo 47, 48, 84 ou 86. Quantidade inteira de 1 a 999999999; o servidor calcula o sinal. O saldo é atualizado de forma condicional (nunca negativo, nunca acima de 999999999) na mesma transação que grava o histórico, a mesma regra da `sp_RegistrarMovimentacao`. Histórico não tem edição nem exclusão (a trigger `trg_Movimentacoes_Imutavel` também impede no banco). Repetir a mesma requisição registra outra movimentação (sem idempotência).
 
-```json
-{"produtoId":1,"quantidade":20,"tipo":"entrada","motivo":"Recebimento NF 123"}
-```
+## Painel web
 
-Saída usa `tipo: "saida"`. Quantidade deve ser inteira de 1 a 999999999. O servidor calcula o sinal. Saldo não pode ficar negativo nem ultrapassar 999999999. Não há endpoint para sobrescrever saldo ou excluir histórico. Uma repetição da mesma requisição ainda pode registrar outra movimentação: idempotência será tratada na integração.
+`http://<host>/` abre o painel: login, painel com indicadores e saldo por categoria, materiais (cadastro, edição, busca e filtro "para repor", exclusão para Administrador), movimentações (entrada/saída e histórico), fornecedores e usuários (somente Administrador). O token fica em `sessionStorage` (some ao fechar a aba). Acessibilidade: `lang="pt-BR"`, rótulos em todos os campos, foco visível, link "Pular para o conteúdo", navegação por teclado, mensagens em região `aria-live`, situação "Repor" escrita (não só por cor) e contraste AA.
 
-## Executar localmente
+Cabeçalhos de segurança em todas as respostas: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer` e `Content-Security-Policy` com `default-src 'self'; frame-ancestors 'none'` (exceto no Swagger, que usa script inline).
 
-1. Instalar .NET SDK 8 e SQL Server.
-2. Usar um banco novo e revisar/aplicar `database/001_almoxarifado.sql`. O script recusa tabelas existentes; migração de um banco antigo exige plano específico.
-3. Configurar `ConnectionStrings__DefaultConnection` por variável de ambiente ou User Secrets. A configuração existente usa SQL Express e autenticação Windows; não colocar senhas no Git.
-4. Na raiz, executar:
+## Executar
+
+**Docker (API + SQL Server 2022 + scripts do banco):**
 
 ```bash
-dotnet restore PimEstoque.csproj
+docker compose up --build
+```
+
+Painel em `http://localhost:8080`, Swagger em `http://localhost:8080/swagger`. O serviço `db-init` cria o banco `PimEstoque` e aplica `database/0*.sql` em ordem antes de a API subir. Senha do `sa` e chave JWT do `docker-compose.yml` são exemplos de desenvolvimento; troque com `MSSQL_SA_PASSWORD` e `JWT_KEY`.
+
+**Local:** aplicar os scripts conforme [database/README.md](../database/README.md), configurar `ConnectionStrings__DefaultConnection` (o padrão usa SQL Express com autenticação Windows) e:
+
+```bash
 dotnet run --project PimEstoque.csproj --launch-profile api
 ```
 
-Swagger em `http://127.0.0.1:5080/swagger`; health em `http://127.0.0.1:5080/health`. O script SQL não é executado automaticamente na inicialização.
-
-CORS é fechado por padrão. Quando houver integração, definir a lista `Cors:Origins` na configuração; origem do Pages é `https://matheusterci-dev.github.io` (sem caminho). CORS não substitui autenticação ou autorização.
+Painel em `http://127.0.0.1:5080`, Swagger em `http://127.0.0.1:5080/swagger` (botão **Authorize** aceita o token). `PimEstoque.http` tem as chamadas prontas.
 
 ## Verificação
 
@@ -56,8 +91,4 @@ CORS é fechado por padrão. Quando houver integração, definir a lista `Cors:O
 dotnet test Tests/PimEstoque.Tests.csproj --configuration Release
 ```
 
-Testes HTTP com WebApplicationFactory e SQLite em memória verificam os quatro prefixos, códigos inválidos, duplicidade, consulta, entrada/saída, saldo insuficiente, unidade bloqueada e quantidades inválidas. O script e as particularidades do SQL Server ainda exigem validação contra um SQL Server real. Não tratar testes SQLite como prova de concorrência ou da migração no SQL Server.
-
-## Dados locais anteriores
-
-Os oito códigos conhecidos dos exemplos `PIM-*` são compatibilizados para códigos numéricos, mantendo id, dados e movimentos. Se o novo código já existir, o antigo é preservado para revisão. Códigos personalizados fora do padrão são mantidos e sinalizados nos detalhes; edite o material para atribuir o código correto. Novas movimentações desses materiais ficam bloqueadas até a correção. Não há importação automática dos dados locais para a API.
+Testes HTTP com WebApplicationFactory e SQLite em memória: prefixos e códigos inválidos, duplicidade, entrada/saída, saldo insuficiente, unidade bloqueada, quantidades inválidas, 401 sem token, 403 por perfil (Consulta e Operador), login/`me`, usuários (sem expor hash, autoproteção do administrador, desativação corta o token), fornecedores e vínculo na entrada, exclusão de material, dashboard, formato do hash PBKDF2 e recusa de iniciar sem chave JWT. SQLite ignora triggers e procedures: concorrência e objetos do SQL Server são validados com `database/tests/validacao.sql` e pelo `docker compose`.

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PimEstoque.Models;
 
 namespace PimEstoque.Contracts;
 
@@ -24,4 +25,35 @@ public sealed class MovimentacaoRequest
     [Range(1, 999999999)] public int Quantidade { get; set; }
     [Required, RegularExpression("^(entrada|saida)$")] public string Tipo { get; set; } = "";
     [Required, StringLength(150)] public string Motivo { get; set; } = "";
+    [Range(1, int.MaxValue)] public int? FornecedorId { get; set; }
+}
+
+public sealed class LoginRequest
+{
+    [Required, StringLength(120)] public string Email { get; set; } = "";
+    [Required, StringLength(100)] public string Senha { get; set; } = "";
+}
+
+public sealed class FornecedorRequest
+{
+    [Required, StringLength(100)] public string Nome { get; set; } = "";
+    [Required, RegularExpression("^[0-9]{14}$", ErrorMessage = "CNPJ deve ter 14 dígitos, sem pontuação.")] public string Cnpj { get; set; } = "";
+    [StringLength(20)] public string? Telefone { get; set; }
+    [StringLength(120), EmailAddress] public string? Email { get; set; }
+    public bool Ativo { get; set; } = true;
+}
+
+public sealed class UsuarioRequest : IValidatableObject
+{
+    [Required, StringLength(100)] public string Nome { get; set; } = "";
+    [Required, StringLength(120), EmailAddress] public string Email { get; set; } = "";
+    // Obrigatória só na criação; na edição, vazia mantém a senha atual.
+    [StringLength(100, MinimumLength = 8)] public string? Senha { get; set; }
+    [Required] public string Perfil { get; set; } = Perfis.Consulta;
+    public bool Ativo { get; set; } = true;
+    public IEnumerable<ValidationResult> Validate(ValidationContext context)
+    {
+        if (!Perfis.Todos.Contains(Perfil))
+            yield return new ValidationResult("Perfil inválido.", new[] { nameof(Perfil) });
+    }
 }

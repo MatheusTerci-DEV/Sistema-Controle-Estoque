@@ -6,11 +6,18 @@ import 'demo_products.dart';
 import 'product.dart';
 import 'product_storage.dart';
 import 'stock_movement.dart';
+import '../../core/api_client.dart';
 
 class ProductCatalog extends ChangeNotifier {
-  ProductCatalog(this.storage);
+  ProductCatalog(this.storage, {this.api});
 
   final ProductStorage storage;
+  final ApiClient? api;
+  bool canWrite = true;
+  final List<StockMovement> _pending = [];
+  final List<StockMovement> _conflicts = [];
+  int get pendingCount => _pending.length;
+  List<StockMovement> get conflicts => List.unmodifiable(_conflicts);
   List<Product> _products = [];
   List<StockMovement> _movements = [];
   List<StockMovement> get movements => List.unmodifiable(_movements.reversed);
@@ -109,10 +116,29 @@ class ProductCatalog extends ChangeNotifier {
           running[movement.productId] = saldo;
           return movement;
         }).toList();
+        final pendingRows = data['pendingMovements'] ?? [];
+        if (pendingRows is! List) throw const FormatException('Fila inválida.');
+        _pending
+          ..clear()
+          ..addAll(
+            pendingRows.map(
+              (row) => StockMovement.fromJson(row as Map<String, dynamic>),
+            ),
+          );
       }
       _movements = loadedMovements;
       _products = loaded;
       isReady = true;
+      if (api != null) {
+        try {
+          final remote = await api!.products();
+          _products = remote;
+          await api!.dashboard();
+          await _persist();
+        } catch (_) {
+          // O cache local continua disponível sem conexão.
+        }
+      }
     } catch (_) {
       loadError =
           'Não foi possível abrir o catálogo local. '
@@ -148,7 +174,7 @@ class ProductCatalog extends ChangeNotifier {
     int? minimumStock,
     String? location,
   }) async {
-    if (!isReady || isLoading || isSaving) {
+    if (!canWrite || !isReady || isLoading || isSaving) {
       throw StateError('Catálogo indisponível.');
     }
     final problem = validatePartNumber(partNumber, excludingId: id);
@@ -200,6 +226,14 @@ class ProductCatalog extends ChangeNotifier {
     isSaving = true;
     _notify();
     try {
+      if (api != null) {
+        final saved = await api!.saveProduct(product, update: id != null);
+        _products = id == null
+            ? [..._products, saved]
+            : _products.map((p) => p.id == id ? saved : p).toList();
+        await _persist();
+        return;
+      }
       await storage.write(_encode(updated));
       _products = updated;
     } finally {
@@ -214,7 +248,7 @@ class ProductCatalog extends ChangeNotifier {
     required bool incoming,
     required String reason,
   }) async {
-    if (!isReady || isLoading || isSaving) {
+    if (!canWrite || !isReady || isLoading || isSaving) {
       throw StateError('Catálogo indisponível.');
     }
     if (!_products.any((p) => p.id == productId)) {
@@ -236,18 +270,35 @@ class ProductCatalog extends ChangeNotifier {
     if (!incoming && quantity > balance(productId)) {
       throw const FormatException('Saldo insuficiente para esta saída.');
     }
-    final updated = [
-      ..._movements,
-      StockMovement(
-        productId: productId,
-        quantity: incoming ? quantity : -quantity,
-        reason: reason.trim(),
-        createdAt: DateTime.now().toUtc(),
-      ),
-    ];
+    final movement = StockMovement(
+      productId: productId,
+      quantity: incoming ? quantity : -quantity,
+      reason: reason.trim(),
+      createdAt: DateTime.now().toUtc(),
+    );
+    final updated = [..._movements, movement];
     isSaving = true;
     _notify();
     try {
+      if (api != null) {
+        try {
+          await api!.createMovement(movement);
+        } on ApiException catch (error) {
+          if (error.statusCode == 409) {
+            _conflicts.add(movement);
+            await _persist();
+            throw const FormatException(
+              'Saldo insuficiente. Revise esta movimentação; ela não será reenviada.',
+            );
+          }
+          _pending.add(movement);
+        } catch (_) {
+          _pending.add(movement);
+        }
+        _movements = updated;
+        await _persist();
+        return;
+      }
       await storage.write(_encode(_products, movements: updated));
       _movements = updated;
     } finally {
@@ -261,5 +312,42 @@ class ProductCatalog extends ChangeNotifier {
         'version': 1,
         'movements': (movements ?? _movements).map((m) => m.toJson()).toList(),
         'products': products.map((p) => p.toJson()).toList(),
+        'pendingMovements': _pending.map((m) => m.toJson()).toList(),
       });
+
+  Future<void> _persist() async => storage.write(_encode(_products));
+
+  Future<void> sync() async {
+    if (api == null) return;
+    final remaining = <StockMovement>[];
+    for (final movement in List.of(_pending)) {
+      try {
+        await api!.createMovement(movement);
+      } on ApiException catch (error) {
+        if (error.statusCode == 409) {
+          _conflicts.add(movement);
+          continue;
+        }
+        remaining.add(movement);
+        break;
+      } catch (_) {
+        remaining.add(movement);
+        break;
+      }
+    }
+    _pending
+      ..clear()
+      ..addAll(remaining);
+    await _persist();
+    _notify();
+  }
+
+  Future<List<StockMovement>> history(int productId) async {
+    if (api == null) {
+      return _movements
+          .where((movement) => movement.productId == productId)
+          .toList();
+    }
+    return api!.movements(productId);
+  }
 }

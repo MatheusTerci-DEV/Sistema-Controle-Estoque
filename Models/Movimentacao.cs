@@ -8,4 +8,8 @@ public class Movimentacao
     public int Quantidade { get; set; }
     public string Motivo { get; set; } = "";
     public DateTime CriadaEmUtc { get; set; }
+    public int? UsuarioId { get; set; }
+    public Usuario? Usuario { get; set; }
+    public int? FornecedorId { get; set; }
+    public Fornecedor? Fornecedor { get; set; }
 }

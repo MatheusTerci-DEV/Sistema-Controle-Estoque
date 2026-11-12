@@ -59,3 +59,24 @@ flutter build web --release --base-href /Sistema-Controle-Estoque/ --no-web-reso
 ```
 
 O armazenamento é selecionado por importação condicional: arquivo no Android e `localStorage` na web. Os oito materiais de demonstração continuam sendo carregados somente se não existir um catálogo salvo. No celular, use o mesmo navegador para manter os cadastros entre acessos.
+## API e navegação conectada
+
+Use `--dart-define=API_URL=http://host:5080` para apontar para a API. O padrão é `http://10.0.2.2:5080` no Android e `http://127.0.0.1:5080` na web. O login de desenvolvimento do contrato é `admin@fixar.com.br` / `Admin@123`, quando o seed estiver habilitado.
+
+O fluxo é: login → início → produtos → detalhes → movimentar; a aba Estoque registra entradas e saídas. `Sincronizar` envia a fila em ordem e mostra os pendentes. Erros 409 ficam para revisão e não são reenviados. Consulta pode ler, mas não vê ações de escrita. Sair remove a sessão; 401 retorna ao login.
+
+No login, `Usar sem servidor (demonstração)` mantém a prévia local do GitHub Pages. No modo conectado, a última lista de produtos é mantida como cache offline.
+
+## Usar no celular Android
+
+1. **Instalar o app:** baixe o APK em Actions → *PIM Estoque Mobile* → *Run workflow* → artefato `pim-estoque-demo-android`, ou gere com `flutter build apk --release` (arquivo em `build/app/outputs/flutter-apk/app-release.apk`). Copie para o celular e instale (permitir "fontes desconhecidas").
+2. **Subir a API acessível na rede**, no PC conectado à mesma Wi-Fi do celular:
+   - Docker: `API_BIND=0.0.0.0 docker compose up --build` (PowerShell: `$env:API_BIND="0.0.0.0"; docker compose up --build`) → porta 8080.
+   - Sem Docker: `dotnet run --project PimEstoque.csproj --launch-profile api --urls http://0.0.0.0:5080` → porta 5080.
+   - Libere a porta no Firewall do Windows quando ele perguntar.
+3. **Descobrir o IP do PC:** `ipconfig` → "Endereço IPv4" (ex.: `192.168.0.10`).
+4. **No app**, na tela de login, preencha *Servidor da API* com `http://192.168.0.10:8080` (ou `:5080`), entre com `admin@fixar.com.br` / `Admin@123`. O servidor fica salvo na sessão.
+
+No emulador Android o PC é `http://10.0.2.2:<porta>`. Sem servidor, use *Usar sem servidor (demonstração)*.
+
+O app aceita HTTP sem TLS (`usesCleartextTraffic`) apenas para a demonstração em rede local; em produção a API fica atrás de HTTPS (ver Etapa 8 do documento).

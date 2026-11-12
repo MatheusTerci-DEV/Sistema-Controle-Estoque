@@ -13,16 +13,22 @@ class StockMovement {
   final DateTime createdAt;
 
   factory StockMovement.fromJson(Map<String, dynamic> data) {
-    final id = data['productId'];
-    final quantity = data['quantity'];
-    final reason = data['reason'];
-    final date = DateTime.tryParse(
-      data['createdAt'] is String ? data['createdAt'] as String : '',
-    );
+    final id = data['productId'] ?? data['produtoId'];
+    final rawQuantity = data['quantity'] ?? data['quantidade'];
+    final type = data['tipo'];
+    final quantity = rawQuantity is int
+        ? rawQuantity
+        : (rawQuantity is num ? rawQuantity.toInt() : null);
+    final normalizedQuantity = type == 'saida' && quantity != null
+        ? -quantity.abs()
+        : quantity;
+    final reason = data['reason'] ?? data['motivo'];
+    final rawDate = data['createdAt'] ?? data['criadaEmUtc'];
+    final date = DateTime.tryParse(rawDate is String ? rawDate : '');
     if (id is! int ||
         id <= 0 ||
-        quantity is! int ||
-        quantity == 0 ||
+        normalizedQuantity is! int ||
+        normalizedQuantity == 0 ||
         reason is! String ||
         reason.trim().isEmpty ||
         reason.length > 150 ||
@@ -31,7 +37,7 @@ class StockMovement {
     }
     return StockMovement(
       productId: id,
-      quantity: quantity,
+      quantity: normalizedQuantity,
       reason: reason,
       createdAt: date,
     );
@@ -42,5 +48,12 @@ class StockMovement {
     'quantity': quantity,
     'reason': reason,
     'createdAt': createdAt.toIso8601String(),
+  };
+
+  Map<String, Object> toApiJson() => {
+    'produtoId': productId,
+    'quantidade': quantity.abs(),
+    'tipo': quantity > 0 ? 'entrada' : 'saida',
+    'motivo': reason,
   };
 }

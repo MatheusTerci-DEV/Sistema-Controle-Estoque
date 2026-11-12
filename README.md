@@ -20,7 +20,7 @@ Veja o [plano de novembro](docs/PLANO_MOBILE_2026-11.md) para a sequência de im
 
 ## Situação da API
 
-A raiz agora contém a API .NET 8 para produtos e movimentações, com EF Core/SQL Server, validações e testes HTTP. Veja [execução e contrato](docs/API_ALMOXARIFADO.md). A API é uma base local e ainda não está integrada ao Pages nem pronta para exposição pública com múltiplos usuários.
+A raiz contém a API .NET 8 em camadas (Controllers → Services → EF Core/SQL Server) com autenticação JWT e perfis Administrador/Operador/Consulta, cobrindo materiais, movimentações, fornecedores, usuários e painel-resumo, e o painel web administrativo em `wwwroot/` servido pela própria API. `docker compose up --build` sobe API, SQL Server 2022 e os scripts de `database/` (painel em `http://localhost:8080`, `admin@fixar.com.br` / `Admin@123`, só para demonstração). Veja [execução e rotas](docs/API_ALMOXARIFADO.md) e o [contrato do PIM IV](docs/CONTRATO_PIM_IV.md). O Pages continua sendo a versão histórica com armazenamento local.
 
 A documentação abaixo descreve a versão web histórica; para executar a nova API use o documento acima.
 

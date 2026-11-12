@@ -1,6 +1,66 @@
-@PimEstoque_HostAddress = http://localhost:5215
+@host = http://127.0.0.1:5080
+# Docker: @host = http://localhost:8080
 
-GET {{PimEstoque_HostAddress}}/weatherforecast/
-Accept: application/json
+# 1) Login (usuário de demonstração do ambiente Development/Docker)
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{"email":"admin@fixar.com.br","senha":"Admin@123"}
 
 ###
+@token = {{login.response.body.$.token}}
+
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/dashboard/resumo
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/produtos?busca=&reposicao=true
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/produtos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"partNumber":"47009999","nomeProduto":"Parafuso M10","categoria":"Fixadores","unit":"PC","location":"A-01-02","minimumStock":10}
+
+###
+GET {{host}}/api/fornecedores
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/fornecedores
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"nome":"Distribuidora Exemplo","cnpj":"11222333000181","telefone":"1533330000","email":"vendas@exemplo.com.br","ativo":true}
+
+###
+POST {{host}}/api/movimentacoes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"produtoId":1,"quantidade":20,"tipo":"entrada","motivo":"Recebimento NF 123","fornecedorId":1}
+
+###
+GET {{host}}/api/movimentacoes?produtoId=1
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/usuarios
+Authorization: Bearer {{token}}
+
+###
+POST {{host}}/api/usuarios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"nome":"Técnico de Campo","email":"tecnico@fixar.com.br","senha":"Tecnico@123","perfil":"Operador","ativo":true}
+
+###
+GET {{host}}/health

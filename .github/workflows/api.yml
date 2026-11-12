@@ -1,11 +1,18 @@
 name: PIM Estoque API
 on:
   push:
+    branches: [main, 'feat/**', 'fix/**']
+    paths: ['Program.cs', 'PimEstoque.csproj', 'Controllers/**', 'Models/**', 'Contracts/**', 'Data/**', 'Services/**', 'wwwroot/**', 'Tests/**', 'database/**', 'Dockerfile', 'docker-compose.yml', '.dockerignore', 'appsettings*.json', '.github/workflows/api.yml']
+  pull_request:
     branches: [main]
-    paths: ['Program.cs', 'PimEstoque.csproj', 'Controllers/**', 'Models/**', 'Contracts/**', 'Data/**', 'Tests/**', 'database/**', '.github/workflows/api.yml']
+    paths: ['Program.cs', 'PimEstoque.csproj', 'Controllers/**', 'Models/**', 'Contracts/**', 'Data/**', 'Services/**', 'wwwroot/**', 'Tests/**', 'database/**', 'Dockerfile', 'docker-compose.yml', '.dockerignore', 'appsettings*.json', '.github/workflows/api.yml']
   workflow_dispatch:
 permissions:
   contents: read
+
+concurrency:
+  group: api-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   api:
     runs-on: ubuntu-latest
@@ -16,3 +23,4 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - run: dotnet test Tests/PimEstoque.Tests.csproj --configuration Release
+      - run: docker build -t pim-estoque-api .
