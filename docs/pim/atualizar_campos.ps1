@@ -15,6 +15,11 @@ try {
     $st.Font.Name = "Arial"; $st.Font.Size = 12; $st.Font.Bold = [int]($id -eq -20)
     Write-Output ("ESTILO " + $id + " = " + $st.NameLocal)
   }
+  # Sumário em espaço simples com 4 pt entre as entradas, para caber em duas páginas
+  foreach ($id in -20, -21, -22) {
+    $pf = $doc.Styles.Item($id).ParagraphFormat
+    $pf.LineSpacingRule = 0; $pf.SpaceAfter = 4
+  }
   $doc.Repaginate()
   $doc.Fields.Update() | Out-Null
   foreach ($t in $doc.TablesOfContents) { $t.Update() }

@@ -45,7 +45,7 @@ INTEGRANTES = [  # ordem alfabética
     ("HENDRYO BATISTA SARMENTO", "R661946"),
     ("LUCAS ALCÂNTARA LEAL", "H32CIA9"),
     ("MATHEUS TERCI", "T319595"),
-    ("VINNICIUS GABRIEL M DOS SANTOS", "H76DJJ6"),
+    ("VINNICIUS GABRIEL MATOS DOS SANTOS", "H76DJJ6"),
 ]
 TITULO = "PIM ESTOQUE"
 SUBTITULO = "solução tecnológica integrada para o controle de almoxarifado da Fixar Manutenção"
@@ -54,7 +54,6 @@ CURSO = "CURSO SUPERIOR DE TECNOLOGIA EM ANÁLISE E DESENVOLVIMENTO DE SISTEMAS"
 NATUREZA = ("Projeto Integrado Multidisciplinar (PIM IV) apresentado à Universidade Paulista – UNIP "
             "como requisito parcial para aprovação no 4º/3º período do Curso Superior de Tecnologia "
             "em Análise e Desenvolvimento de Sistemas.")
-ORIENTADOR = "Orientador(a): Prof.(ª) ____________________________"
 TEMA_PIM = ("Desenvolvimento e Implantação de uma Solução Tecnológica Corporativa Integrada para "
             "Apoiar a Transformação Digital de uma Empresa")
 
@@ -254,6 +253,10 @@ def _quebrar(codigo: str, largura: int = 82) -> str:
     for linha in codigo.splitlines():
         while len(linha) > largura:
             corte = linha.rfind(" ", 0, largura)
+            if corte <= 20:  # sem espaço: quebra antes de um ponto ou depois de "(" ou ","
+                corte = max(linha.rfind(".", 21, largura),
+                            linha.rfind("(", 21, largura - 1) + 1,
+                            linha.rfind(",", 21, largura - 1) + 1)
             corte = corte if corte > 20 else largura
             saida.append(linha[:corte])
             recuo = len(linha) - len(linha.lstrip()) + 4
@@ -493,8 +496,8 @@ def configurar_estilos(doc: Document) -> None:
         f.first_line_indent = Cm(0)
         f.left_indent = Cm(0)
         f.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        f.line_spacing = 1.5
-        f.space_after = Pt(0)
+        f.line_spacing = 1.0
+        f.space_after = Pt(4)
         _tab_pontilhado(s.element.get_or_add_pPr())
         s.element.set(qn("w:styleId"), f"TOC{nivel}")
         s.element.find(qn("w:name")).set(qn("w:val"), f"toc {nivel}")
@@ -625,6 +628,8 @@ class Numeracao:
 CENTRALIZAR = {"Sim", "Não", "Alta", "Média", "Baixa", "—", "Futura", "Concluída", "Em andamento",
                "A fazer", "Em revisão", "GET", "POST", "PUT", "DELETE"}
 
+MAX_LINHAS_JUNTAS = 9  # quadros/tabelas até este tamanho não são divididos entre páginas
+
 TIPO_BLOCO = {"fig": ("Figura", "fig"), "quadro": ("Quadro", "quadro"),
               "codigo": ("Quadro", "quadro"), "tabela": ("Tabela", "tabela")}
 
@@ -644,6 +649,24 @@ def resolver_refs(texto: str, num: Numeracao) -> str:
             raise KeyError(f"Referência cruzada desconhecida: {chave}")
         return num.mapa[chave]
     return re.sub(r"\[\[([a-z_]+:[a-z_]+)\]\]", troca, texto)
+
+
+def _largura_indicativo(texto: str) -> float:
+    """Largura, em pontos, do indicativo numérico + espaço em Arial 12 (dígito 6,672; ponto e
+    espaço 3,336), para alinhar a continuação do título sob a primeira letra."""
+    numero = texto.split(" ", 1)[0]
+    if not numero[:1].isdigit():
+        return 0.0
+    return sum(6.672 if ch.isdigit() else 3.336 for ch in numero) + 3.336
+
+
+def _manter_junto(tabela):
+    """Impede que a ilustração seja dividida entre páginas e a prende à linha de fonte."""
+    for linha in tabela.rows:
+        _set(linha._tr.get_or_add_trPr(), "w:cantSplit", **{"w:val": "true"})
+        for cel in linha.cells:
+            for par in cel.paragraphs:
+                par.paragraph_format.keep_with_next = True
 
 
 def legenda(doc, tipo, numero, titulo):
@@ -668,6 +691,9 @@ def escrever_blocos(doc, blocos, num: Numeracao, figuras: dict, contadores: dict
             texto = b[1] if tipo != "h1" else b[1].upper()
             p = doc.add_paragraph(style=estilo)
             fonte_run(p.add_run(texto), 12, tipo in ("h1", "h2"))
+            recuo = _largura_indicativo(texto)
+            p.paragraph_format.left_indent = Pt(recuo)
+            p.paragraph_format.first_line_indent = Pt(-recuo)
             if contadores.pop("sem_quebra", False):
                 p.paragraph_format.page_break_before = False
         elif tipo == "p":
@@ -716,6 +742,8 @@ def escrever_blocos(doc, blocos, num: Numeracao, figuras: dict, contadores: dict
                     elif cs in CENTRALIZAR or re.fullmatch(r"[A-Z]{0,3}\d[\d.,%]*|\d+%|S\d", cs):
                         alinh = WD_ALIGN_PARAGRAPH.CENTER
                     texto_celula(t.rows[i].cells[j], c, negrito=ultima_total, alinhamento=alinh)
+            if len(linhas) <= MAX_LINHAS_JUNTAS:
+                _manter_junto(t)
             fonte_ilustracao(doc, fonte_txt)
         elif tipo == "codigo":
             _, chave, titulo, codigo, fonte_txt = b
@@ -727,6 +755,7 @@ def escrever_blocos(doc, blocos, num: Numeracao, figuras: dict, contadores: dict
             largura_celulas(t, [16])
             texto_celula(t.rows[0].cells[0], codigo, tamanho=8, estilo="Codigo ABNT",
                          fonte="Courier New")
+            _manter_junto(t)
             fonte_ilustracao(doc, fonte_txt)
         else:
             raise ValueError(tipo)
@@ -784,11 +813,7 @@ def folha_rosto(doc, aprovacao=False):
                   entrelinha=1.0)
     p.paragraph_format.left_indent = Cm(8)
     if not aprovacao:
-        paragrafo(doc, "", recuo=Cm(0))
-        p = paragrafo(doc, ORIENTADOR, alinhamento=WD_ALIGN_PARAGRAPH.LEFT, recuo=Cm(0),
-                      entrelinha=1.0)
-        p.paragraph_format.left_indent = Cm(8)
-        for _ in range(7):
+        for _ in range(9):  # o grupo não teve orientador designado
             paragrafo(doc, "", recuo=Cm(0))
         paragrafo(doc, CIDADE, alinhamento=c, negrito=True, recuo=Cm(0))
         paragrafo(doc, ANO, alinhamento=c, negrito=True, recuo=Cm(0))
@@ -882,9 +907,30 @@ def _chave_ordem(partes):
             ano.group(0) if ano else "", plano)
 
 
-def apendice_script(doc):
+AP_SQL = "APÊNDICE A – SCRIPT SQL COMPLETO DO BANCO DE DADOS"
+AP_API = "APÊNDICE B – CÓDIGO-FONTE DA API (ASP.NET CORE)"
+AP_WEB = "APÊNDICE C – CÓDIGO-FONTE DO PAINEL WEB"
+AP_MOBILE = "APÊNDICE D – CÓDIGO-FONTE DO APLICATIVO MOBILE (FLUTTER)"
+ANEXO_FICHA = "ANEXO A – FICHA DE CONTROLE DO PIM"
+TITULOS_POS = ("REFERÊNCIAS", AP_SQL, AP_API, AP_WEB, AP_MOBILE, ANEXO_FICHA)
+LARGURA_CODIGO = 100  # caracteres de Courier New 7,5 em 16 cm
+
+
+def _titulo_pos(doc, texto):
     p = doc.add_paragraph(style="Titulo Pos-textual")
-    fonte_run(p.add_run("APÊNDICE A – SCRIPT SQL COMPLETO DO BANCO DE DADOS"), 12, True)
+    fonte_run(p.add_run(texto), 12, True)
+    return p
+
+
+def _listagem(doc, codigo: str):
+    for linha in _quebrar(codigo.replace("\t", "    ").rstrip(), LARGURA_CODIGO).splitlines():
+        p = doc.add_paragraph(style="Codigo ABNT")
+        p.paragraph_format.space_after = Pt(0)
+        fonte_run(p.add_run(linha if linha else " "), 7.5, fonte="Courier New")
+
+
+def apendice_script(doc):
+    _titulo_pos(doc, AP_SQL)
     caminho = RAIZ / "database" / "entrega" / "pim_estoque_completo.sql"
     script = _ler(caminho)
     if not script:
@@ -895,37 +941,67 @@ def apendice_script(doc):
     paragrafo(doc, "Script consolidado utilizado pela API, pelo painel web e pelo aplicativo, "
                    f"disponível no repositório em {caminho.relative_to(RAIZ).as_posix()}.",
               recuo=Cm(0), depois=Pt(6))
-    for linha in _quebrar(script.replace("\t", "    "), 110).splitlines():
-        p = doc.add_paragraph(style="Codigo ABNT")
-        p.paragraph_format.space_after = Pt(0)
-        fonte_run(p.add_run(linha if linha else " "), 7.5, fonte="Courier New")
+    _listagem(doc, script)
     return ORIGEM_TRECHOS.setdefault("apendice", caminho.relative_to(RAIZ).as_posix())
 
 
+def arquivos_fonte() -> dict:
+    """Arquivos escritos pela equipe, na ordem de leitura (sem testes nem código gerado)."""
+    def pasta(*partes, padrao):
+        base = RAIZ.joinpath(*partes)
+        return sorted(base.rglob(padrao)) if base.exists() else []
+    api = [RAIZ / "Program.cs"]
+    for nome in ("Controllers", "Services", "Data", "Models", "Contracts"):
+        api += pasta(nome, padrao="*.cs")
+    web = [RAIZ / "wwwroot" / n for n in ("index.html", "app.js", "styles.css")]
+    lib = RAIZ / "mobile" / "lib"
+    mobile = [lib / "main.dart", lib / "app.dart"]
+    mobile += pasta("mobile", "lib", "core", padrao="*.dart")
+    mobile += pasta("mobile", "lib", "features", padrao="*.dart")
+    return {"api": [a for a in api if a.exists()], "web": [a for a in web if a.exists()],
+            "mobile": [a for a in mobile if a.exists()]}
+
+
+def apendice_codigo(doc, titulo: str, descricao: str, arquivos: list) -> int:
+    """Listagem integral dos arquivos, cada um identificado pelo caminho no repositório."""
+    _titulo_pos(doc, titulo)
+    paragrafo(doc, descricao, recuo=Cm(0), depois=Pt(6))
+    linhas = 0
+    for arq in arquivos:
+        codigo = _ler(arq)
+        p = paragrafo(doc, f"Arquivo: {arq.relative_to(RAIZ).as_posix()}", recuo=Cm(0),
+                      negrito=True, tamanho=10, entrelinha=1.0, antes=Pt(10), depois=Pt(4),
+                      alinhamento=WD_ALIGN_PARAGRAPH.LEFT)
+        p.paragraph_format.keep_with_next = True
+        _listagem(doc, codigo)
+        linhas += len(codigo.splitlines())
+    ORIGEM_TRECHOS[titulo.split(" – ")[0].lower()] = f"{len(arquivos)} arquivos, {linhas} linhas"
+    return linhas
+
+
 def anexo_ficha(doc):
-    p = doc.add_paragraph(style="Titulo Pos-textual")
-    fonte_run(p.add_run("ANEXO A – FICHA DE CONTROLE DO PIM"), 12, True)
+    _titulo_pos(doc, ANEXO_FICHA)
     c = WD_ALIGN_PARAGRAPH.CENTER
     paragrafo(doc, "FICHA DE CONTROLE DO PIM", alinhamento=c, negrito=True, recuo=Cm(0))
-    paragrafo(doc, "Grupo Nº _____     Ano: 2026     Período: 4º/3º – 2026/2     "
-                   "Orientador: ______________", recuo=Cm(0),
+    paragrafo(doc, "Grupo Nº: n/a     Ano: 2026     Período: 4º/3º – 2026/2     "
+                   "Orientador: n/a", recuo=Cm(0),
               alinhamento=WD_ALIGN_PARAGRAPH.LEFT, tamanho=11)
     paragrafo(doc, f"Tema: {TEMA_PIM}", recuo=Cm(0), alinhamento=WD_ALIGN_PARAGRAPH.LEFT,
               tamanho=11, entrelinha=1.0, depois=Pt(6))
     paragrafo(doc, "Alunos:", recuo=Cm(0), negrito=True, tamanho=11)
-    cab = ["RA", "Nome", "E-mail", "Curso", "Visto do aluno"]
-    t = doc.add_table(rows=7, cols=5)
+    cab = ["RA", "Nome", "Curso", "Visto do aluno"]
+    t = doc.add_table(rows=7, cols=4)
     bordas_tabela(t)
-    largura_celulas(t, [2.2, 5.0, 3.8, 2.0, 3.0])
+    largura_celulas(t, [2.5, 7.5, 2.5, 3.5])
     for j, c_ in enumerate(cab):
         texto_celula(t.rows[0].cells[j], c_, negrito=True, alinhamento=c)
     alunos = sorted(INTEGRANTES)
     for i in range(6):
         if i < len(alunos):
             nome, ra = alunos[i]
-            valores = [ra, nome.title().replace(" Dos ", " dos ").replace(" M ", " M. "), "", "CST ADS", ""]
+            valores = [ra, nome.title().replace(" Dos ", " dos "), "CST ADS", ""]
         else:
-            valores = ["", "", "", "", ""]
+            valores = ["", "", "", ""]
         for j, v in enumerate(valores):
             texto_celula(t.rows[i + 1].cells[j], v)
         t.rows[i + 1].height = Cm(0.8)
@@ -979,8 +1055,7 @@ def construir(ctx: dict, figuras: dict, paginas: dict) -> tuple[Document, Numera
             nivel = {"h1": 1, "h2": 2, "h3": 3}[b[0]]
             texto = b[1].upper() if nivel == 1 else b[1]
             entradas.append((texto, paginas.get(texto, ""), f"toc {nivel}"))
-    for texto in ("REFERÊNCIAS", "APÊNDICE A – SCRIPT SQL COMPLETO DO BANCO DE DADOS",
-                  "ANEXO A – FICHA DE CONTROLE DO PIM"):
+    for texto in TITULOS_POS:
         entradas.append((texto, paginas.get(texto, ""), "toc 1"))
     lista_campo(doc, "SUMÁRIO", 'TOC \\o "1-3" \\h \\z \\u', entradas)
 
@@ -995,13 +1070,23 @@ def construir(ctx: dict, figuras: dict, paginas: dict) -> tuple[Document, Numera
     escrever_blocos(doc, blocos_txt, num, figuras, {"sem_quebra": True})
     referencias(doc)
     apendice_script(doc)
+    fontes = arquivos_fonte()
+    apendice_codigo(doc, AP_API, "Código-fonte integral da API REST que concentra as regras de "
+                    "negócio do PIM Estoque (seções 5 e 7), na ordem das camadas: inicialização, "
+                    "controllers, services, acesso a dados, entidades e contratos.", fontes["api"])
+    apendice_codigo(doc, AP_WEB, "Código-fonte integral do painel administrativo servido pela "
+                    "API a partir da pasta wwwroot (seção 5.5).", fontes["web"])
+    apendice_codigo(doc, AP_MOBILE, "Código-fonte integral do aplicativo descrito na seção 6, "
+                    "escrito em Dart: inicialização, núcleo (cliente HTTP, autenticação e tema) e "
+                    "funcionalidades.", fontes["mobile"])
     anexo_ficha(doc)
 
     # propriedades
     cp = doc.core_properties
     cp.title = f"{TITULO}: {SUBTITULO}"
     cp.subject = "PIM IV – CST em Análise e Desenvolvimento de Sistemas – UNIP 2026/2"
-    cp.author = "; ".join(n.title() for n, _ in INTEGRANTES)
+    cp.author = "; ".join(n.title().replace(" Dos ", " dos ") for n, _ in INTEGRANTES)
+    cp.comments = ""
     cp.language = "pt-BR"
     return doc, num, {"blocos": blocos_txt}
 
@@ -1023,6 +1108,11 @@ try {
     $pf.Alignment = 0; $pf.SpaceBefore = 0; $pf.SpaceAfter = 0; $pf.LineSpacingRule = 1
     $st.Font.Name = "Arial"; $st.Font.Size = 12; $st.Font.Bold = [int]($id -eq -20)
     Write-Output ("ESTILO " + $id + " = " + $st.NameLocal)
+  }
+  # Sumário em espaço simples com 4 pt entre as entradas, para caber em duas páginas
+  foreach ($id in -20, -21, -22) {
+    $pf = $doc.Styles.Item($id).ParagraphFormat
+    $pf.LineSpacingRule = 0; $pf.SpaceAfter = 4
   }
   $doc.Repaginate()
   $doc.Fields.Update() | Out-Null
@@ -1080,15 +1170,15 @@ def paginas_do_pdf(blocos) -> dict:
             i = achar(texto)
             if i is not None:
                 mapa[texto] = str(i - deslocamento)
-    for rot in ("REFERÊNCIAS", "APÊNDICE A – SCRIPT SQL COMPLETO DO BANCO DE DADOS",
-                "ANEXO A – FICHA DE CONTROLE DO PIM"):
+    for rot in TITULOS_POS:
         i = achar(rot, inicio + 5)
         if i is not None:
             # usa a última ocorrência como título de seção (evita menções no texto)
             ult = max(j for j in range(inicio, len(textos_n)) if norm(rot) in textos_n[j])
             mapa[rot] = str(ult - deslocamento)
+    fim_texto = int(mapa.get("REFERÊNCIAS", len(textos_n) - deslocamento)) + deslocamento
     for tipo in ("Figura", "Quadro", "Tabela"):
-        for i in range(inicio, len(textos_n)):
+        for i in range(inicio, min(fim_texto + 1, len(textos_n))):
             for m in re.finditer(rf"{tipo} (\d+) – ", textos_n[i]):
                 mapa.setdefault(f"{tipo} {m.group(1)}", str(i - deslocamento))
     mapa["_total_paginas_pdf"] = len(textos)
@@ -1106,6 +1196,7 @@ def _numero_impresso(texto, indice):
 def validar(ctx, num: Numeracao, blocos, paginas: dict) -> dict:
     d = Document(str(SAIDA))
     corpo = "\n".join(p.text for p in d.paragraphs)
+    sem_listagens = "\n".join(p.text for p in d.paragraphs if p.style.name != "Codigo ABNT")
     tabelas = "\n".join(c.text for t in d.tables for r in t.rows for c in r.cells)
     tudo = corpo + "\n" + tabelas
     norm = tudo.lower()
@@ -1117,7 +1208,7 @@ def validar(ctx, num: Numeracao, blocos, paginas: dict) -> dict:
         ("Capa (instituição, curso, nomes/RA, título, cidade, ano)",
          tem("UNIVERSIDADE PAULISTA", "ANÁLISE E DESENVOLVIMENTO", "H76DJJ6", "R661946", "H32CIA9",
              "T319595", "PIM ESTOQUE", "SOROCABA", "2026")),
-        ("Folha de rosto com natureza do trabalho", tem("como requisito parcial", "Orientador")),
+        ("Folha de rosto com natureza do trabalho", tem("como requisito parcial")),
         ("Folha de aprovação", tem("BANCA EXAMINADORA", "Aprovado em")),
         ("Resumo + palavras-chave", tem("RESUMO", "Palavras-chave:")),
         ("Abstract + keywords", tem("ABSTRACT", "Keywords:")),
@@ -1128,6 +1219,11 @@ def validar(ctx, num: Numeracao, blocos, paginas: dict) -> dict:
         ("Conclusão", tem("CONCLUSÃO")),
         ("Referências", tem("REFERÊNCIAS")),
         ("Apêndice A – script SQL", tem("APÊNDICE A", "CREATE TABLE dbo.Produtos")),
+        ("Apêndice B – código da API", tem(AP_API, "Arquivo: Program.cs",
+                                           "Arquivo: Services/MovimentacaoService.cs")),
+        ("Apêndice C – código do painel web", tem(AP_WEB, "Arquivo: wwwroot/app.js")),
+        ("Apêndice D – código do aplicativo", tem(AP_MOBILE, "Arquivo: mobile/lib/main.dart",
+                                                  "Arquivo: mobile/lib/core/api_client.dart")),
         ("Anexo A – Ficha de Controle", tem("FICHA DE CONTROLE DO PIM", "Data do encontro",
                                              "Visto do aluno")),
         # Etapa 1
@@ -1205,7 +1301,7 @@ def validar(ctx, num: Numeracao, blocos, paginas: dict) -> dict:
     # placeholders
     proibidos = ["[[", "]]", "TODO", "Lorem", "XXX", "FALLBACK", "{ctx", "não encontrado no código",
                  "não localizado em mobile", "Clique com o botão direito"]
-    restos = [p for p in proibidos if p in tudo]
+    restos = [p for p in proibidos if p in sem_listagens + "\n" + tabelas]
     # palavras
     def palavras(bs):
         total = 0

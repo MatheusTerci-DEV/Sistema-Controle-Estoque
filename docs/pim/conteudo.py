@@ -292,7 +292,7 @@ def etapa2(ctx: dict) -> list:
          "Fonte: elaborado pelos autores (2026), valores estimados.", [11.0, 5.0]),
         ("p", "O ponto de equilíbrio, em número de clientes, é obtido dividindo o custo fixo pela "
               "margem de contribuição unitária (ticket médio menos custo variável): "
-              f"{brl(cf, 0)} ÷ ({brl(ticket)} − {brl(cv, 0)}) ≈ {pe:.1f}. Portanto, a operação se paga a "
+              f"{brl(cf, 0)} ÷ ({brl(ticket)} − {brl(cv, 0)}) ≈ {str(round(pe, 1)).replace('.', ',')}. Portanto, a operação se paga a "
               f"partir de {int(-(-pe // 1))} empresas assinantes, como mostra a [[fig:equilibrio]]. Com "
               f"40 clientes, a margem mensal seria de aproximadamente {brl(margem40, 0)}, o que "
               f"recuperaria o investimento inicial estimado em {brl(f['investimento'], 0)} (horas de "
@@ -621,7 +621,9 @@ def etapa6(ctx: dict) -> list:
               "produtos); os scripts numerados do banco em database; e os testes automatizados. "
               "Sommerville (2011) observa que módulos coesos e pouco acoplados reduzem o custo de "
               "manutenção, o que se confirmou quando a integração do aplicativo com a API se "
-              "concentrou na camada de catálogo e no cliente HTTP."),
+              "concentrou na camada de catálogo e no cliente HTTP. O código-fonte integral dos "
+              "módulos está nos apêndices: API no Apêndice B, painel web no Apêndice C e aplicativo "
+              "no Apêndice D."),
     ]
 
 
@@ -788,7 +790,7 @@ def etapa9(ctx: dict) -> list:
         ("quadro", "papeis", "Papéis do Scrum na equipe",
          ["Papel", "Integrante", "Responsabilidades no projeto"],
          [
-             ["Product Owner", "Vinnicius Gabriel M. dos Santos", "Prioriza o backlog, representa a "
+             ["Product Owner", "Vinnicius Gabriel Matos dos Santos", "Prioriza o backlog, representa a "
               "Fixar e aceita as entregas; também atua no back-end"],
              ["Scrum Master", "Hendryo Batista Sarmento", "Facilita eventos, remove impedimentos e "
               "cuida do banco de dados"],
@@ -829,10 +831,10 @@ def etapa9(ctx: dict) -> list:
             "regras validadas na API e, quando houver, reforçadas no banco;",
             "telas verificadas por teclado ou leitor de tela e com texto ampliado;",
             "documentação atualizada;",
-            "aceite do Product Owner na revisão. As entregas finais são a API e o painel em "
-            "container, o APK e a versão web do aplicativo, o script do banco, o plano de nuvem e "
-            "este documento.",
+            "aceite do Product Owner na revisão.",
         ]),
+        ("p", "As entregas finais são a API e o painel em container, o APK e a versão web do "
+              "aplicativo, o script do banco, o plano de nuvem e este documento."),
     ]
 
 

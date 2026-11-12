@@ -18,7 +18,7 @@ Empresa fictícia (o PIM III não nomeou a organização; o grupo pode renomear)
 
 | RA | Nome | Papel |
 | --- | --- | --- |
-| H76DJJ6 | Vinnicius Gabriel M. dos Santos | Líder / Product Owner / backend |
+| H76DJJ6 | Vinnicius Gabriel Matos dos Santos | Líder / Product Owner / backend |
 | R661946 | Hendryo Batista Sarmento | Scrum Master / banco de dados |
 | H32CIA9 | Lucas Alcântara Leal | Mobile Flutter |
 | T319595 | Matheus Terci | Web / DevOps |
